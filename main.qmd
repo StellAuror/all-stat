@@ -1,0 +1,38 @@
+```{r}
+# install.packages("eurostat")
+library(eurostat)
+library(tidyverse)
+```
+```{r}
+searchData <- 
+  eurostat::search_eurostat("satisfaction")
+searchData
+```
+```{r}
+data <- 
+  eurostat::get_eurostat("ilc_pw01",
+    type = "label", time_format = "num"
+  )
+
+data %>% 
+  filter(
+    age == "From 16 to 19 years",
+    sex != "Total",
+    geo %in% c("Euro area – 20 countries (from 2023)", "Poland"),
+    isced11 == "All ISCED 2011 levels",
+    indic_wb == "Overall life satisfaction"
+  ) %>%
+  select(sex, "year" = TIME_PERIOD, "value" = values, geo) %>%
+  ggplot(
+    aes(
+      x = year,
+      y = value,
+      color = geo
+    )
+  ) + 
+  geom_line() +
+  facet_wrap(~sex)
+
+data$geo %>% unique
+```
+
