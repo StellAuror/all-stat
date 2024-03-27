@@ -5,34 +5,103 @@ library(tidyverse)
 ```
 ```{r}
 searchData <- 
-  eurostat::search_eurostat("satisfaction")
+  eurostat::search_eurostat("Energy")
 searchData
 ```
 ```{r}
 data <- 
-  eurostat::get_eurostat("ilc_pw01",
+  eurostat::get_eurostat("env_ac_pefasu",
     type = "label", time_format = "num"
   )
+options(scipen = 999)
 
-data %>% 
-  filter(
-    age == "From 16 to 19 years",
-    sex != "Total",
-    geo %in% c("Euro area – 20 countries (from 2023)", "Poland"),
-    isced11 == "All ISCED 2011 levels",
-    indic_wb == "Overall life satisfaction"
-  ) %>%
-  select(sex, "year" = TIME_PERIOD, "value" = values, geo) %>%
+data %>%
+  mutate(NAs = if_else(is.na(values), "NA", "Value")) %>%
+  group_by(geo, NAs) %>%
+  summarise(n = n()) %>%
+  group_by(geo) %>%
+  mutate(height = if_else(NAs == "NA", sum(n), n)) %>%
   ggplot(
     aes(
-      x = year,
-      y = value,
-      color = geo
+      fill = NAs,
+      y = reorder(geo, -n),
+      x = n/1000
     )
   ) + 
-  geom_line() +
-  facet_wrap(~sex)
+  geom_col() + theme_minimal() +
+  geom_text(aes(
+    label = paste0(round(n/1000, 0), "k"), 
+    y = reorder(geo, -n),
+    x = height/1000
+  ), inherit.aes = F, color = "#60879c") +
+  scale_fill_brewer(palette = "Blues") +
+  labs(
+    x = "# of records (thousends)",
+    y = "",
+    title = "How many records are avaiable?",
+    subtitle = "divided by a country / a group of countries",
+    caption = "data source: eurostat \n dataset id:env_ac_pefasu"
+  )
+```
+```{r}
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+      "Non-renewable waste",
+      "Renewable waste",
+      "Energy products"
+    )
+  ) %>% 
+  pivot_wider(values_from = "values", names_from = "prod_nrg") %>%
+  select(
+    "year" = TIME_PERIOD,
+    "non-ren" = `Non-renewable waste`,
+    "ren" = `Renewable waste`,
+    "prod" = `Energy products`,
+    geo
+  ) %>% 
+  mutate(
+    isPoland = if_else(geo == "Poland", "Yes", "No"),
+    trans = year^1,
+    text = if_else(geo == "Poland" & year == 2020, "Poland", ""),
+    alpha = (trans - min(trans)) / (max(trans) - min(trans))
+  ) %>% na.omit %>% filter(ren != 0, `non-ren` != 0) %>%
+  ggplot(
+    aes(
+      x = ren,
+      y = `non-ren`,
+      size = prod,
+      alpha = alpha
+    )
+  ) +
+  geom_point(
+    aes(
+      group = geo,
+      color = isPoland,
+      alpha = year
+    ), show.legend = T
+  ) +
+  geom_text(aes(label = text), color = "#ff451e", alpha = .3, size = 10) +
+  scale_alpha(range = c(.05, .8)) +
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_color_manual(values = c("#0087f3", "#ff451e")) +
+  labs(
+    x = "Waste of renewable energy (Terajules)",
+    y = "Waste of non-renewable energy (Terajules)",
+    size = "Energy production",
+    title = "Does Poland waste energy?",
+    subtitle = "compared to other eu countries in years 2008-2022 (the darker, the more recent)",
+    caption = "Author: Michał K \n data source: eurostat \n dataset id:env_ac_pefasu"
+  ) +
+  theme_minimal() + 
+  guides(
+    color = "none",
+    alpha = "none"
+  )
 
-data$geo %>% unique
+data$prod_nrg %>% unique
 ```
 
