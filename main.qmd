@@ -88,6 +88,7 @@ data %>%
   scale_x_log10() +
   scale_y_log10() +
   scale_color_manual(values = c("#0087f3", "#ff451e")) +
+  geom_abline(xintercept = 0, size = .8, color = "red", linetype = "dashed", alpha = .6) +
   labs(
     x = "Waste of renewable energy (Terajules)",
     y = "Waste of non-renewable energy (Terajules)",
