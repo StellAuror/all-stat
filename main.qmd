@@ -2,11 +2,13 @@
 # install.packages("eurostat")
 library(eurostat)
 library(tidyverse)
+library(countrycode)
 ```
 ```{r}
 searchData <- 
-  eurostat::search_eurostat("Energy")
+  eurostat::search_eurostat("Population")
 searchData
+
 ```
 ```{r}
 data <- 
@@ -43,6 +45,26 @@ data %>%
     caption = "data source: eurostat \n dataset id:env_ac_pefasu"
   )
 ```
+
+```{r}
+countrycode::codelist
+pop <- 
+  eurostat::get_eurostat("demo_r_d2jan"
+  )
+pop %>%
+  filter(
+    sex == "T",
+    age == "TOTAL"
+  ) %>%
+  filter(nchar(geo) == 2) %>%
+  left_join(countrycode::codelist, join_by(geo == eurostat)) %>%
+  mutate(
+    id = paste0(iso.name.en, year(TIME_PERIOD))
+  ) %>%
+  select(id, "pop" = values) -> popeu
+```
+
+
 ```{r}
 data %>%
   filter(
@@ -63,11 +85,15 @@ data %>%
     geo
   ) %>% 
   mutate(
-    isPoland = if_else(geo == "Poland", "Yes", "No"),
+    isPoland = if_else(geo == "Poland", "Poland", ""),
     trans = year^1,
     text = if_else(geo == "Poland" & year == 2020, "Poland", ""),
     alpha = (trans - min(trans)) / (max(trans) - min(trans))
-  ) %>% na.omit %>% filter(ren != 0, `non-ren` != 0) %>%
+  ) %>% na.omit %>%
+  filter(
+    ren != 0, `non-ren` != 0,
+    geo != "European Union - 27 countries (from 2020)"
+  ) %>%
   ggplot(
     aes(
       x = ren,
@@ -83,18 +109,19 @@ data %>%
       alpha = year
     ), show.legend = T
   ) +
-  geom_text(aes(label = text), color = "#ff451e", alpha = .3, size = 10) +
-  scale_alpha(range = c(.05, .8)) +
+  # geom_text(aes(label = if_else(year == 2019, geo, "")), color = "#3c3c3c", alpha = 1, size = 3) +
+  geom_text(aes(label = if_else(year == 2019, isPoland, "")), color = "#ff451e", alpha = .3, size = 9, nudge_x = -.3, nudge_y = .3) +
+  scale_alpha(range = c(.05, .5)) +
   scale_x_log10() +
   scale_y_log10() +
   scale_color_manual(values = c("#0087f3", "#ff451e")) +
-  geom_abline(xintercept = 0, size = .8, color = "red", linetype = "dashed", alpha = .6) +
+  geom_abline(xintercept = 0, size = .8, color = "red", linetype = "dashed", alpha = .9) +
   labs(
     x = "Waste of renewable energy (Terajules)",
     y = "Waste of non-renewable energy (Terajules)",
     size = "Energy production",
-    title = "Does Poland waste energy?",
-    subtitle = "compared to other eu countries in years 2008-2022 (the darker, the more recent)",
+    title = "Is Poland energy efficient?",
+    subtitle = "compared to other eu countries in years 2008-2022",
     caption = "Author: Michał K \n data source: eurostat \n dataset id:env_ac_pefasu"
   ) +
   theme_minimal() + 
@@ -103,6 +130,231 @@ data %>%
     alpha = "none"
   )
 
-data$prod_nrg %>% unique
+
+```
+
+
+```{r}
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+      "Non-renewable waste",
+      "Renewable waste",
+      "Energy products"
+    )
+  ) %>% 
+  pivot_wider(values_from = "values", names_from = "prod_nrg") %>%
+  select(
+    "year" = TIME_PERIOD,
+    "non-ren" = `Non-renewable waste`,
+    "ren" = `Renewable waste`,
+    "prod" = `Energy products`,
+    geo
+  ) %>% 
+  mutate(
+    isPoland = if_else(geo == "Poland", "Poland", ""),
+    text = if_else(geo == "Poland" & year == 2020, "Poland", "")
+  ) %>% na.omit %>%
+  filter(
+    ren != 0, `non-ren` != 0,
+    geo != "European Union - 27 countries (from 2020)"
+  ) %>%
+  group_by(geo) %>%
+  mutate(
+    y2 = if_else(year == max(year, na.rm =T), `non-ren`, NA),
+    x2 = if_else(year == max(year, na.rm =T), `ren`, NA)
+  ) %>%
+  ggplot(
+    aes(
+      x = ren,
+      y = `non-ren`
+    )
+  ) +
+  geom_abline(xintercept = 0, size = .8, color = "#3c3c3c", linetype = "dashed", alpha = .9) +
+  geom_line(
+    aes(
+      group = geo,
+      color = isPoland,
+      size = prod
+    ), show.legend = T
+  ) +
+  geom_point(
+    aes(
+      x = x2,
+      y = y2
+    ), color = "#0055f3", size = 2.2
+  ) +
+  geom_point(
+    aes(
+      x = if_else(isPoland == "Poland", x2, NA),
+      y = if_else(isPoland == "Poland", y2, NA)
+    ), color = "#ff0000", size = 2.2
+  ) +
+  scale_size(range = c(.5, 2)) +
+  # geom_text(aes(label = if_else(year == 2019, geo, "")), color = "#3c3c3c", alpha = 1, size = 3) +
+  geom_text(aes(label = if_else(year == 2019, isPoland, "")), color = "#ff451e", alpha = .3, size = 9, nudge_x = -.3, nudge_y = .3) +
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_color_manual(values = c("#0087f3", "#ff451e")) +
+  labs(
+    x = "Waste of renewable energy (Terajules)",
+    y = "Waste of non-renewable energy (Terajules)",
+    size = "Energy production",
+    title = "Is Poland energy efficient?",
+    subtitle = "compared to other eu countries in years 2008-2022;
+    size idicates a total energy production, latest period is marked with dot",
+    caption = "Author: Michał K \n data source: eurostat \n dataset id:env_ac_pefasu"
+  ) +
+  theme_minimal() + 
+  guides(
+    color = "none",
+    alpha = "none"
+  )
+```
+
+
+```{r}
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+      "Non-renewable waste",
+      "Renewable waste",
+      "Energy products"
+    )
+  ) %>% 
+  pivot_wider(values_from = "values", names_from = "prod_nrg") %>%
+  select(
+    "year" = TIME_PERIOD,
+    "prod" = `Energy products`,
+    geo
+  ) %>% filter(year %in% 2014:2021, geo != "European Union - 27 countries (from 2020)") %>%
+  mutate(isPoland = if_else(geo == "Poland", "Poland", "")) %>%
+  ggplot(
+    aes(
+      y = prod,
+      x = factor(year),
+      color = isPoland,
+      group = geo
+    )
+  ) +
+  geom_line() + theme_minimal() +
+  scale_color_manual(values = c("#0087f3", "#ff451e"))
+```
+```{r}
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+      "Non-renewable waste",
+      "Renewable waste",
+      "Energy products"
+    )
+  ) %>% 
+  pivot_wider(values_from = "values", names_from = "prod_nrg") %>%
+  select(
+    "year" = TIME_PERIOD,
+    "prod" = `Energy products`,
+    geo
+  ) %>% 
+  filter(
+    year %in% 2014:2022,
+    geo != "European Union - 27 countries (from 2020)"
+  ) %>%
+  mutate(
+    isPoland = if_else(geo == "Poland", "Poland", ""),
+    id = paste0(geo, year)
+  ) %>%
+  left_join(popeu, join_by(id == id)) %>%
+  mutate(
+    pop = pop/1000000,
+    prod = prod/1000000
+  ) %>%
+  ggplot(
+    aes(
+      y = prod,
+      x = pop,
+      color = isPoland,
+      group = geo
+    )
+  ) +
+  geom_line(size = 1.1) + theme_minimal() +
+  scale_color_manual(values = c("#0087f3", "#ff451e"))
+```
+
+```{r}
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+      "Non-renewable waste",
+      "Renewable waste",
+      "Energy products"
+    )
+  ) %>% 
+  pivot_wider(values_from = "values", names_from = "prod_nrg") %>%
+  select(
+    "year" = TIME_PERIOD,
+    "prod" = `Energy products`,
+    geo
+  ) %>% 
+  filter(
+    year %in% 2014:2022,
+    geo != "European Union - 27 countries (from 2020)"
+  ) %>%
+  mutate(
+    isPoland = if_else(geo == "Poland", "Poland", ""),
+    id = paste0(geo, year)
+  ) %>%
+  left_join(popeu, join_by(id == id)) %>%
+  mutate(
+    pop = pop/1000000,
+    prod = prod/1000000
+  ) %>%
+  filter(
+    prod >= 5,
+    pop >= 30
+  ) %>%
+  mutate(
+    y2 = if_else(year == max(year, na.rm =T), prod, NA),
+    x2 = if_else(year == max(year, na.rm =T), pop, NA)
+  ) %>%
+  ggplot() +
+  geom_line(
+    aes(
+      y = prod,
+      x = pop,
+      color = isPoland,
+      group = geo
+    ), size = 1.1, show.legend = F
+  ) +
+  theme_minimal() +
+    geom_point(
+    aes(
+      x = x2,
+      y = y2
+    ), color = "#0055f3", size = 2.2
+  ) +
+  geom_point(
+    aes(
+      x = if_else(isPoland == "Poland", x2, NA),
+      y = if_else(isPoland == "Poland", y2, NA)
+    ), color = "#ff0000", size = 2.2
+  ) +
+  geom_text(
+    aes(
+      x = x2,
+      y = y2,
+      label = geo
+    ), nudge_x = .02
+  ) +
+  scale_color_manual(values = c("#0087f3", "#ff451e")) +
+  scale_x_log10() +
+  scale_y_log10()
 ```
 
