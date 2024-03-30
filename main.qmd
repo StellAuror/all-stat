@@ -357,4 +357,94 @@ data %>%
   scale_x_log10() +
   scale_y_log10()
 ```
+```{r}
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+    # "Nuclear non-renewable natural energy inputs",
+    "Hydro based renewable natural energy inputs",
+    "Wind based renewable natural energy inputs",
+    "Solar based renewable natural energy inputs",
+    "Biomass based renewable natural energy inputs",
+    "Other renewable natural energy inputs"
+    )
+  ) %>% 
+  group_by(geo, prod_nrg) %>%
+  mutate(year = if_else(max(TIME_PERIOD, na.rm = T) == TIME_PERIOD, "recent", NA)) %>%
+  mutate(
+    order = sum(values, na.rm = T),
+    prod_nrg = factor(
+      prod_nrg,
+      levels = c(
+        # "Nuclear non-renewable natural energy inputs",
+        "Other renewable natural energy inputs",
+        "Solar based renewable natural energy inputs",
+        "Wind based renewable natural energy inputs",
+        "Hydro based renewable natural energy inputs",
+        "Biomass based renewable natural energy inputs"
+      ), ordered = T
+    )
+  ) %>%
+  filter(
+    year == "recent",
+    geo != "European Union - 27 countries (from 2020)"
+  ) %>%
+  ggplot(
+    aes(
+      y = reorder(geo, order),
+      x = values,
+      fill = prod_nrg
+    )
+  ) +
+  geom_col(position = position_fill()) +
+  theme_minimal() +
+  scale_fill_manual(
+    values = c(
+    "Biomass based renewable natural energy inputs" = "#00b28d",
+    "Hydro based renewable natural energy inputs" = "#0086f0",
+    "Wind based renewable natural energy inputs" = "#8fcae9",
+    "Solar based renewable natural energy inputs" = "#fff437",
+    "Other renewable natural energy inputs" = "#cacaca"
+    )
+  )
+```
+
+```{r}
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+    "Nuclear non-renewable natural energy inputs",
+    "Hydro based renewable natural energy inputs",
+    "Wind based renewable natural energy inputs",
+    "Solar based renewable natural energy inputs",
+    "Biomass based renewable natural energy inputs",
+    "Other renewable natural energy inputs",
+    "Energy products"
+    )
+  ) %>% 
+  group_by(geo, prod_nrg) %>%
+  mutate(year = if_else(max(TIME_PERIOD, na.rm = T) == TIME_PERIOD, "recent", NA)) %>%
+  filter(
+  year == "recent",
+  geo != "European Union - 27 countries (from 2020)"
+  ) %>% 
+  ungroup() %>% group_by(geo) %>%
+  mutate(
+    order = sum(values, na.rm = T),
+    share = if_else(prod_nrg == "Energy products", values / sum(values, na.rm = T), NA)
+  ) %>%
+  ggplot(
+    aes(
+      y = reorder(geo, order),
+      x = share,
+      fill = prod_nrg
+    )
+  ) +
+  geom_col() +
+  theme_minimal()
+```
 
