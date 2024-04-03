@@ -1,5 +1,5 @@
 ---
-title: "Poland through the eyes of Eurostat data"
+title: "Poland through the eyes of Eurostat Data"
 author: "MK"
 date: "April 2024"
 output: 
@@ -22,14 +22,17 @@ options(scipen = 999)
 ```{r}
 library(tidyverse)
 ```
-## Demography
+
 ## Energy
+
 ### Data Understanding
+
 ```{r}
 searchData <- 
   eurostat::search_eurostat("Population")
 ```
-```{r}
+
+```{r, out.width="100%", dpi = 300}
 data <- 
   eurostat::get_eurostat("env_ac_pefasu",
     type = "label", time_format = "num"
@@ -61,9 +64,12 @@ data %>%
     title = "How many records are avaiable?",
     subtitle = "divided by a country / a group of countries",
     caption = "data source: eurostat \n dataset id:env_ac_pefasu"
-  ) 
+  ) + 
+  theme(
+    panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    plot.background = element_rect(fill = '#fafafa', color = '#fafafa')
+  )
 ```
-
 
 ```{r}
 pop <- 
@@ -82,9 +88,9 @@ pop %>%
   select(id, "pop" = values) -> popeu
 ```
 
-## 
+### Waste
 
-```{r}
+```{r, out.width="100%", dpi = 300}
 data %>%
   filter(
     stk_flow == "Use",
@@ -161,10 +167,22 @@ data %>%
   guides(
     color = "none",
     alpha = "none"
+  ) + 
+  theme(
+    panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    plot.background = element_rect(fill = '#fafafa', color = '#fafafa')
   )
 ```
 
-```{r}
+### Production 
+
+1.  Compared to other European economies most similar to Poland in terms of population, Poles consume much less electricity per person than other countries - the only exception here is Italy. In turn, the economy with the highest electricity consumption per person is Germany.
+
+2.  The more populated a country is, the more pronounced are the fluctuations caused by the COVID-19 outbreak. This may indicate the high industrialization of these countries - downtime in the production of goods resulted in a significant decline in electricity consumption. This thesis is confirmed in the case of the largest economies - German and French.
+
+3.  Interestingly, none of the economies returned to their previous state of energy consumption in 2021, when restrictions and restrictions related to the pandemic were no longer so stringent.
+
+```{r, out.width="100%", dpi = 300}
 data %>%
   filter(
     stk_flow == "Use",
@@ -247,7 +265,76 @@ data %>%
    theme(
      panel.grid.minor = element_line(size = 0.25),
      panel.grid.major = element_line(size = 0.75),
-     plot.title = element_text(face = "bold", size = 12)
-   )
+     plot.title = element_text(face = "bold", size = 12),
+     panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+     plot.background = element_rect(fill = '#fafafa', color = '#fafafa')
+   ) + 
+  theme(
+    
+  )
 ```
 
+```{r, out.width="100%", dpi = 300}
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+      "Non-renewable waste",
+      "Renewable waste",
+      "Energy products"
+    )
+  ) %>% 
+  pivot_wider(values_from = "values", names_from = "prod_nrg") %>%
+  select(
+    "year" = TIME_PERIOD,
+    "prod" = `Energy products`,
+    geo
+  ) %>% 
+  filter(
+    year %in% 2014:2022,
+    geo != "European Union - 27 countries (from 2020)"
+  ) %>% mutate(id = paste0(geo, year)) %>%
+  left_join(popeu, join_by(id == id)) %>%
+  group_by(geo) %>%
+  summarise(
+    prod = mean(prod, na.rm = T),
+    pop = mean(pop, na.rm = T)
+  ) %>%
+  mutate(
+    ratio = prod / pop,
+    isPoland = if_else(geo == "Poland", "Poland", "No"),
+    label = if_else(
+      geo == "Poland",
+      paste0(
+        round(ratio, 2), " TJ per person, which is the equivalent of ",
+        round(ratio * 45.961, 0), " tons of chocolate eaten by a man"
+      ),
+      round(ratio, 2) %>% as.character()
+    )
+  ) %>%
+  na.omit %>%
+  ggplot(aes(
+    y = reorder(geo, ratio),
+    x = ratio,
+    fill = isPoland
+  ), show.legend = T) + 
+  geom_col() + 
+  geom_text(aes(label = label, color = isPoland), nudge_x = .05, hjust = 0) +
+  scale_fill_manual(values = c("#0087f3", "#ff451e")) +
+  scale_color_manual(values = c("#0087f3", "#ff451e")) +
+  theme_minimal() +
+  labs(
+    x = "Consumption in TJ / 1 person",
+    y = "energy production (in milions of terajoules)",
+    title = "How does Poland compare to other european countries with similar characteristics?",
+    subtitle = "the latest period marked with a point",
+    caption = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu"
+  ) + 
+  theme(
+    panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    plot.background = element_rect(fill = '#fafafa', color = '#fafafa')
+  )
+```
+
+### Sources
