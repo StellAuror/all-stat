@@ -176,11 +176,7 @@ data %>%
 
 ### Production 
 
-1.  Compared to other European economies most similar to Poland in terms of population, Poles consume much less electricity per person than other countries - the only exception here is Italy. In turn, the economy with the highest electricity consumption per person is Germany.
 
-2.  The more populated a country is, the more pronounced are the fluctuations caused by the COVID-19 outbreak. This may indicate the high industrialization of these countries - downtime in the production of goods resulted in a significant decline in electricity consumption. This thesis is confirmed in the case of the largest economies - German and French.
-
-3.  Interestingly, none of the economies returned to their previous state of energy consumption in 2021, when restrictions and restrictions related to the pandemic were no longer so stringent.
 
 ```{r, out.width="100%", dpi = 300}
 data %>%
@@ -274,6 +270,12 @@ data %>%
   )
 ```
 
+1.  Compared to other European economies most similar to Poland in terms of population, Poles consume much less electricity per person than other countries - the only exception here is Italy. In turn, the economy with the highest electricity consumption per person is Germany.
+
+2.  The more populated a country is, the more pronounced are the fluctuations caused by the COVID-19 outbreak. This may indicate the high industrialization of these countries - downtime in the production of goods resulted in a significant decline in electricity consumption. This thesis is confirmed in the case of the largest economies - German and French.
+
+3.  Interestingly, none of the economies returned to their previous state of energy consumption in 2021, when restrictions and restrictions related to the pandemic were no longer so stringent.
+
 ```{r, out.width="100%", dpi = 300}
 data %>%
   filter(
@@ -335,6 +337,38 @@ data %>%
     panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
     plot.background = element_rect(fill = '#fafafa', color = '#fafafa')
   )
+```
+```{r, out.width="100%", dpi = 300}
+library(ggimage)
+library(extrafont)
+loadfonts(device = "win")
+
+title = stringr::str_wrap(
+  "The average Pole consumes so much electricity per year that converting it into its caloric equivalent will result in 7 tons of chocolate. That is, 52   people (with an average requirement of 2000 kcal) could eat chocolate all year round!"
+)
+
+data.frame(
+  x = rep(1:10, 7),
+  y = rep(7:1, each = 10),
+  img = c(rep(NA, 10), rep("https://i.stack.imgur.com/qkdEZ.png", 52), rep(NA, 8))
+) %>%
+ggplot() +
+  geom_image(
+    aes(
+      x = x,
+      y = y,
+      image = img
+    ),
+    size = .08
+  ) +
+  theme_void() + 
+  labs(
+    title = title
+  ) +  
+  theme(
+    panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    plot.background = element_rect(fill = '#fafafa', color = '#fafafa')
+  ) 
 ```
 
 ### Sources
