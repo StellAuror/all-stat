@@ -3,9 +3,9 @@ title: "Poland through the eyes of Eurostat Data"
 author: "MK"
 date: "April 2024"
 output: 
-  prettydoc::html_pretty:
-    theme: architect
-    toc: yes
+  rmdformats::robobook:
+    code_folding: show
+css: custom.css
 ---
 
 ```{r, include = F}
@@ -21,22 +21,28 @@ options(scipen = 999)
 
 ```{r}
 library(tidyverse)
+library(extrafont)
+#font_import()
+loadfonts(device = "win")
+#windowsFonts()
 ```
 
-## Energy
+# Energy
 
-### Data Understanding
+## Data Understanding
 
 ```{r}
 searchData <- 
   eurostat::search_eurostat("Population")
-```
 
-```{r, out.width="100%", dpi = 300}
 data <- 
   eurostat::get_eurostat("env_ac_pefasu",
     type = "label", time_format = "num"
   )
+```
+
+```{r, out.width="100%", dpi = 300}
+
 
 data %>%
   mutate(NAs = if_else(is.na(values), "NA", "Value")) %>%
@@ -56,18 +62,20 @@ data %>%
     label = paste0(round(n/1000, 0), "k"), 
     y = reorder(geo, -n),
     x = height/1000
-  ), inherit.aes = F, color = "#60879c") +
-  scale_fill_brewer(palette = "Blues") +
+  ), inherit.aes = F, color = "#111d2b") +
+  scale_fill_manual(values = c("#9fb1bc", "#2E4057")) +
   labs(
-    x = "# of records (thousends)",
+    x = " of records (thousends)",
     y = "",
+    fill = "Missing data",
     title = "How many records are avaiable?",
     subtitle = "divided by a country / a group of countries",
     caption = "data source: eurostat \n dataset id:env_ac_pefasu"
   ) + 
   theme(
     panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    plot.background = element_rect(fill = '#fafafa', color = '#fafafa')
+    plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    text = element_text(family = "Segoe UI Semibold")
   )
 ```
 
@@ -88,7 +96,7 @@ pop %>%
   select(id, "pop" = values) -> popeu
 ```
 
-### Waste
+## Waste
 
 ```{r, out.width="100%", dpi = 300}
 data %>%
@@ -140,20 +148,20 @@ data %>%
     aes(
       x = x2,
       y = y2
-    ), color = "#0055f3", size = 2.2
+    ), color = "#111d2b", size = 2.2
   ) +
   geom_point(
     aes(
       x = if_else(isPoland == "Poland", x2, NA),
       y = if_else(isPoland == "Poland", y2, NA)
-    ), color = "#ff0000", size = 2.2
+    ), color = "#d1000a", size = 2.2
   ) +
   scale_size(range = c(.5, 2)) +
-  # geom_text(aes(label = if_else(year == 2019, geo, "")), color = "#3c3c3c", alpha = 1, size = 3) +
-  geom_text(aes(label = if_else(year == 2019, isPoland, "")), color = "#ff451e", alpha = .3, size = 5, nudge_x = -.2, nudge_y = .2) +
+   geom_text(aes(label = if_else(year == 2019, geo, "")), color = "#3c3c3c", alpha = 1, size = 3) +
+  geom_text(aes(label = if_else(year == 2019, isPoland, "")), color = "#F93943", alpha = .3, size = 5, nudge_x = -.2, nudge_y = .2) +
   scale_x_log10() +
   scale_y_log10() +
-  scale_color_manual(values = c("#0087f3", "#ff451e")) +
+  scale_color_manual(values = c("#2E4057", "#F93943")) +
   labs(
     x = "Waste of renewable energy (Terajules)",
     y = "Waste of non-renewable energy (Terajules)",
@@ -174,7 +182,7 @@ data %>%
   )
 ```
 
-### Production 
+## Production 
 
 
 
@@ -230,13 +238,13 @@ data %>%
     aes(
       x = x2,
       y = y2
-    ), color = "#0055f3", size = 2.2
+    ), color = "#111d2b", size = 2.2
   ) +
   geom_point(
     aes(
       x = if_else(isPoland == "Poland", x2, NA),
       y = if_else(isPoland == "Poland", y2, NA)
-    ), color = "#ff0000", size = 2.2
+    ), color = "#d1000a", size = 2.2
   ) +
   geom_text(
     aes(
@@ -250,7 +258,7 @@ data %>%
     minor_breaks = seq(0, 90, 5),
     breaks = seq(0, 90, 15)
   ) +
-  scale_color_manual(values = c("#0087f3", "#ff451e")) +
+  scale_color_manual(values = c("#2E4057", "#F93943")) +
   labs(
     x = "population (in milions of people)",
     y = "energy production (in milions of terajoules)",
@@ -308,10 +316,7 @@ data %>%
     isPoland = if_else(geo == "Poland", "Poland", "No"),
     label = if_else(
       geo == "Poland",
-      paste0(
-        round(ratio, 2), " TJ per person, which is the equivalent of ",
-        round(ratio * 45.961, 0), " tons of chocolate eaten by a man"
-      ),
+      paste0(round(ratio, 2), " TJ per person"),
       round(ratio, 2) %>% as.character()
     )
   ) %>%
@@ -323,8 +328,8 @@ data %>%
   ), show.legend = T) + 
   geom_col() + 
   geom_text(aes(label = label, color = isPoland), nudge_x = .05, hjust = 0) +
-  scale_fill_manual(values = c("#0087f3", "#ff451e")) +
-  scale_color_manual(values = c("#0087f3", "#ff451e")) +
+  scale_fill_manual(values = c("#2E4057", "#F93943")) +
+  scale_color_manual(values = c("#2E4057", "#F93943")) +
   theme_minimal() +
   labs(
     x = "Consumption in TJ / 1 person",
@@ -371,4 +376,4 @@ ggplot() +
   ) 
 ```
 
-### Sources
+## Sources
