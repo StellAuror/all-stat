@@ -10,7 +10,6 @@ output:
 
 ```{r setup, include = FALSE}
 library(tidyverse)
-library(extrafont)
 library(svglite)
 library(ggimage)
 library(extrafont)
@@ -30,10 +29,6 @@ options(scipen = 999)
 ```
 
 
-# Energy
-
-## Data Understanding
-
 ```{r}
 searchData <- 
   eurostat::search_eurostat("Population")
@@ -43,6 +38,32 @@ data <-
     type = "label", time_format = "num"
   )
 ```
+
+```{r}
+pop <- 
+  eurostat::get_eurostat("demo_r_d2jan"
+  )
+pop %>%
+  filter(
+    sex == "T",
+    age == "TOTAL"
+  ) %>%
+  filter(nchar(geo) == 2) %>%
+  left_join(countrycode::codelist, join_by(geo == eurostat)) %>%
+  mutate(
+    id = paste0(iso.name.en, year(TIME_PERIOD))
+  ) %>%
+  select(id, "pop" = values) -> popeu
+```
+
+# Energy
+
+The source of the analyzed data is the eurostat API from the `eurostat` package. As of the date of the analyses, the latest data cover the year 2022 for all EU countries.
+
+## Data Understanding
+
+The analyzed data set contains information on consumption, production and energy sources. Differentiating the industry (nace_r2 classification), country (limited to EU countries) and reporting period (2008-2022) with clear gaps in the continuity of reporting by individual countries. All values are in Terajoule units.
+
 
 ```{r, out.width="100%", dpi = 300}
 s <- svgstring()
@@ -86,24 +107,9 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-```{r}
-pop <- 
-  eurostat::get_eurostat("demo_r_d2jan"
-  )
-pop %>%
-  filter(
-    sex == "T",
-    age == "TOTAL"
-  ) %>%
-  filter(nchar(geo) == 2) %>%
-  left_join(countrycode::codelist, join_by(geo == eurostat)) %>%
-  mutate(
-    id = paste0(iso.name.en, year(TIME_PERIOD))
-  ) %>%
-  select(id, "pop" = values) -> popeu
-```
-
 ## Production 
+
+Since the subject of this analysis is Poland, I will start by comparing it in the context of other EU countries in terms of energy production and population. This will help position Poland in relation to other member states.
 
 ```{r, out.width="100%", dpi = 300}
 title <- stringr::str_wrap(
@@ -148,8 +154,8 @@ data %>%
     pop >= 10
   ) %>%
   mutate(
-    y2 = if_else(year == max(year, na.rm =T), prod, NA),
-    x2 = if_else(year == max(year, na.rm =T), pop, NA)
+    y2 = if_else(year == max(year, na.rm = T), prod, NA),
+    x2 = if_else(year == max(year, na.rm = T), pop, NA)
   ) %>%
   ggplot() +
   geom_line(
@@ -211,113 +217,12 @@ invisible(dev.off())
 
 2.  The more populated a country is, the more pronounced are the fluctuations caused by the COVID-19 outbreak. This may indicate the high industrialization of these countries - downtime in the production of goods resulted in a significant decline in electricity consumption. This thesis is confirmed in the case of the largest economies - German and French.
 
-3.  Interestingly, none of the economies returned to their previous state of energy consumption in 2021, when restrictions and restrictions related to the pandemic were no longer so stringent.
+3.  Interestingly, none of the economies returned to their previous state of energy consumption in 2022, when restrictions and restrictions related to the pandemic were no longer so stringent.
 
-## Waste
-
-```{r, out.width="100%", dpi = 300}
-s <- svgstring()
-
-data %>%
-  filter(
-    stk_flow == "Use",
-    nace_r2 == "Total - all NACE activities",
-    prod_nrg %in% c(
-      "Non-renewable waste",
-      "Renewable waste",
-      "Energy products"
-    )
-  ) %>% 
-  pivot_wider(values_from = "values", names_from = "prod_nrg") %>%
-  select(
-    "year" = TIME_PERIOD,
-    "non-ren" = `Non-renewable waste`,
-    "ren" = `Renewable waste`,
-    "prod" = `Energy products`,
-    geo
-  ) %>% 
-  mutate(
-    isPoland = if_else(geo == "Poland", "Poland", ""),
-    text = if_else(geo == "Poland" & year == 2020, "Poland", "")
-  ) %>% na.omit %>%
-  filter(
-    ren != 0, `non-ren` != 0,
-    geo != "European Union - 27 countries (from 2020)"
-  ) %>%
-  group_by(geo) %>%
-  mutate(
-    y2 = if_else(year == max(year, na.rm =T), `non-ren`, NA),
-    x2 = if_else(year == max(year, na.rm =T), `ren`, NA)
-  ) %>%
-  ggplot(
-    aes(
-      x = ren,
-      y = `non-ren`
-    ), show.legend = F
-  ) +
-  geom_abline(xintercept = 0, size = .8, color = "#3c3c3c", linetype = "dashed", alpha = .9) +
-  geom_line(
-    aes(
-      group = geo,
-      color = isPoland,
-      size = prod
-    ), show.legend = F
-  ) +
-  geom_point(
-    aes(
-      x = x2,
-      y = y2
-    ), color = "#111d2b", size = 2.2
-  ) +
-  geom_point(
-    aes(
-      x = if_else(isPoland == "Poland", x2, NA),
-      y = if_else(isPoland == "Poland", y2, NA)
-    ), color = "#d1000a", size = 2.2
-  ) +
-  scale_size(range = c(.5, 2)) +
-   geom_text(
-     aes(
-       x = x2,
-       y = y2,
-       label = if_else(geo != "Poland", geo, "")
-     ), color = "#3c3c3c", alpha = 1, size = 3, nudge_y = .05
-   ) +
-  geom_text(
-    aes(
-      label = if_else(year == 2019, isPoland, "")
-    ), color = "#F93943", alpha = .3, size = 5, nudge_x = -.2, nudge_y = .2
-  ) +
-  scale_x_log10() +
-  scale_y_log10() +
-  scale_color_manual(values = c("#2E4057", "#F93943")) +
-  labs(
-    x = "Waste of renewable energy (Terajules)",
-    y = "Waste of non-renewable energy (Terajules)",
-    size = "Energy production",
-    title = "Is Poland energy efficient?",
-    subtitle = "compared to other eu countries in years 2008-2022;
-    size idicates a total energy production, the latest period marked with a point",
-    caption = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu"
-  ) +
-  theme_minimal() + 
-  guides(
-    color = "none",
-    alpha = "none"
-  ) + 
-  theme(
-    panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    plot.title = element_text(face = "bold", size = 12),
-    text = element_text(color = "#111d2b", family = "Segoe UI")
-  )
+4. Poland is one of the biggest energy producers, mainly due to the its population 
 
 
-htmltools::HTML(s())
-invisible(dev.off())
-```
-
-
+However, these are very general and abstract sentences. Not very appealing to our heuristics and intuition. So let's look from the perspective of an average citizen.
 
 ```{r, out.width="100%", dpi = 300}
 title <- stringr::str_wrap(
@@ -393,6 +298,14 @@ data %>%
 htmltools::HTML(s())
 invisible(dev.off())
 ```
+
+1. The average Pole does not consume (relatively) large amounts of energy. In this respect, it is definitely on the side of the eastern part of Europe, which closes this ranking.
+
+2. Of course, consumption also results directly from the industrialization of a given country - production markets will be largely responsible for the increase in this statistic.
+
+
+If we want to convert 0.15TJ, which is still abstract for the average consumer, let's play a little with mathematics.
+
 ```{r, out.width="100%", dpi = 300}
 s <- svgstring()
 
@@ -434,4 +347,116 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-## Sources
+After converting energy consumption into kcal, assuming the caloric value of chocolate at the level of 546kcal/100g, it turns out that the average Pole consumes the equivalent of electricity, which would allow for 7 tons of chocolate - that is, feeding 52 people for a whole year!
+
+Moving on to more realistic calculations... (continued)
+
+## Waste
+
+Knowing where Poland stands on the European stage in terms of production, I will now look at how much this production is used - this will be an introduction to the study of how Poland (but also other countries) manage their energy.
+
+```{r, out.width="100%", dpi = 300}
+s <- svgstring()
+
+data %>%
+  filter(
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities",
+    prod_nrg %in% c(
+      "Non-renewable waste",
+      "Renewable waste",
+      "Energy products"
+    )
+  ) %>% 
+  pivot_wider(values_from = "values", names_from = "prod_nrg") %>%
+  select(
+    "year" = TIME_PERIOD,
+    "non-ren" = `Non-renewable waste`,
+    "ren" = `Renewable waste`,
+    "prod" = `Energy products`,
+    geo
+  ) %>% 
+  mutate(
+    isPoland = if_else(geo == "Poland", "Poland", ""),
+    text = if_else(geo == "Poland" & year == 2020, "Poland", "")
+  ) %>% na.omit %>%
+  filter(
+    ren != 0, `non-ren` != 0,
+    geo != "European Union - 27 countries (from 2020)"
+  ) %>%
+  group_by(geo) %>%
+  mutate(
+    y2 = if_else(year == max(year, na.rm = T), `non-ren`, NA),
+    x2 = if_else(year == max(year, na.rm = T), `ren`, NA)
+  ) %>%
+  ggplot(
+    aes(
+      x = ren,
+      y = `non-ren`
+    ), show.legend = F
+  ) +
+  geom_abline(xintercept = 0, size = .8, color = "#3c3c3c", linetype = "dashed", alpha = .9) +
+  geom_line(
+    aes(
+      group = geo,
+      color = isPoland,
+      size = prod
+    ), show.legend = F
+  ) +
+  geom_point(
+    aes(
+      x = x2,
+      y = y2
+    ), color = "#111d2b", size = 2.2
+  ) +
+  geom_point(
+    aes(
+      x = if_else(isPoland == "Poland", x2, NA),
+      y = if_else(isPoland == "Poland", y2, NA)
+    ), color = "#d1000a", size = 2.2
+  ) +
+  scale_size(range = c(.5, 2)) +
+   geom_text(
+     aes(
+       x = x2,
+       y = y2,
+       label = if_else(geo != "Poland", geo, "")
+     ), color = "#3c3c3c", alpha = 1, size = 3, nudge_y = .05
+   ) +
+  geom_text(
+    aes(
+      label = if_else(year == 2019, isPoland, "")
+    ), color = "#F93943", alpha = 1, size = 3, nudge_y = .05
+  ) +
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_color_manual(values = c("#2E4057", "#F93943")) +
+  labs(
+    x = "Waste of renewable energy (Terajules)",
+    y = "Waste of non-renewable energy (Terajules)",
+    size = "Energy production",
+    title = "Is Poland wasting its energy?",
+    subtitle = "compared to other eu countries in years 2008-2022;
+    size idicates a total energy production, the latest period marked with a point",
+    caption = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu"
+  ) +
+  theme_minimal() + 
+  guides(
+    color = "none",
+    alpha = "none"
+  ) + 
+  theme(
+    panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    plot.title = element_text(face = "bold", size = 12),
+    text = element_text(color = "#111d2b", family = "Segoe UI")
+  )
+
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+1. In the ranking of energy waste, the top has undergone some changes, while Poland still holds a high position, interestingly - in recent years there has been a tendency to waste energy from renewable sources - this may be a consequence of a wild energy revolution, the potential of which is wasted due to lack of energy storage and, in general, inadequate infrastructure.
+
+2. Even though Poland is ahead of countries such as Spain or Italy in this infamous ranking, it is not (at least based on these data) in the worst situation. Scandinavian countries and the Netherlands, known for their extensive use of renewable energy, are doing much worse.
