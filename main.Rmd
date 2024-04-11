@@ -13,6 +13,7 @@ library(tidyverse)
 library(svglite)
 library(ggimage)
 library(extrafont)
+library(plotly)
 #font_import()
 #loadfonts(device = "win")
 #windowsFonts()
@@ -94,13 +95,13 @@ data %>%
     fill = "Missing data",
     title = "How many records are avaiable?",
     subtitle = "divided by a country / a group of countries",
-    caption = "data source: eurostat \n dataset id:env_ac_pefasu"
+    caption = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu"
   ) + 
   theme(
     panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
     plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    plot.title = element_text(face = "bold", size = 12),
-    text = element_text(color = "#111d2b", family = "Segoe UI")
+    plot.title = element_text(face = "bold", size = 18),
+    text = element_text(color = "#111d2b", family = "Segoe UI", size = 13)
   )
 
 htmltools::HTML(s())
@@ -197,13 +198,13 @@ data %>%
     y = "energy production (in milions of terajoules)",
     title = title,
     subtitle = "the latest period marked with a point",
-    caption = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu"
+    caption = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu; demo_r_d2jan"
   ) + 
    theme(
      panel.grid.minor = element_line(size = 0.25),
      panel.grid.major = element_line(size = 0.75),
-     plot.title = element_text(face = "bold"),
-     text = element_text(color = "#111d2b", family = "Segoe UI"),
+    plot.title = element_text(face = "bold", size = 18),
+    text = element_text(color = "#111d2b", family = "Segoe UI", size = 13),
      panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
      plot.background = element_rect(fill = '#fafafa', color = '#fafafa')
    ) 
@@ -291,8 +292,8 @@ data %>%
   theme(
     panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
     plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    plot.title = element_text(face = "bold", size = 12),
-    text = element_text(color = "#111d2b", family = "Segoe UI")
+    plot.title = element_text(face = "bold", size = 18),
+    text = element_text(color = "#111d2b", family = "Segoe UI", size = 13)
   )
 
 htmltools::HTML(s())
@@ -334,13 +335,14 @@ ggplot() +
   theme_void() + 
   labs(
     title = title,
-    subtitle = subtitle
+    subtitle = subtitle, 
+    caption = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu"
   ) +  
   theme(
     panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
     plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    plot.title = element_text(face = "bold", size = 12),
-    text = element_text(color = "#111d2b", family = "Segoe UI")
+    plot.title = element_text(face = "bold", size = 18),
+    text = element_text(color = "#111d2b", family = "Segoe UI", size = 13)
   ) 
 
 htmltools::HTML(s())
@@ -350,6 +352,167 @@ invisible(dev.off())
 After converting energy consumption into kcal, assuming the caloric value of chocolate at the level of 546kcal/100g, it turns out that the average Pole consumes the equivalent of electricity, which would allow for 7 tons of chocolate - that is, feeding 52 people for a whole year!
 
 Moving on to more realistic calculations... (continued)
+
+...
+
+Now that we know how much energy we use, it's time to think about what we actually use?
+
+```{r, out.width="100%"}
+s <- svgstring()
+pal <- RColorBrewer::brewer.pal(name = "Oranges", n = 9)[4:9]
+
+data %>% filter(
+  prod_nrg %in% c(
+    "Hard coal",
+    "Brown coal and peat",
+    "Derived gases (= manufactured gases excl. biogas)",
+    "Secondary coal products (coke, coal tar, patent fuel, BKB and peat products)",
+    "Crude oil, NGL, and other hydrocarbons (excl. bio)",
+    "Natural gas (without bio)",
+    "Motor spirit (without bio)",
+    "Kerosenes and jet fuels (without bio)",
+    "Naphtha",
+    "Transport diesel (without bio)",
+    "Heating and other gasoil (without bio)",
+    "Residual fuel oil",
+    "Refinery gas, ethane and LPG",
+    "Other petroleum products incl. additives/oxygenates and refinery feedstocks",
+    "Nuclear fuel",
+    "Wood, wood waste and other solid biomass, charcoal"   
+  ),
+  geo == "Poland",
+  stk_flow == "Use",
+  nace_r2 == "Total - all NACE activities"
+) %>%
+  group_by(TIME_PERIOD) %>%
+  mutate(
+    all = sum(values),
+    perc = values / sum(values),
+    prod_nrg = if_else(perc >= .05, prod_nrg, "Others")
+  ) %>%
+  group_by(TIME_PERIOD, prod_nrg) %>% summarise(values = sum(values)) %>%
+  ggplot(
+    aes(
+      x = TIME_PERIOD,
+      y = values,
+      color = prod_nrg,
+      group = prod_nrg
+    )
+  ) +
+  geom_line() +
+  geom_text(aes(
+    label = paste0(format(round(values), big.mark = "'", scientific = F), "Tj"),
+    x = if_else(TIME_PERIOD == 2021, TIME_PERIOD, NA),
+  ), hjust = 1, nudge_y = 50000) +
+  geom_text(aes(
+    label = prod_nrg,
+    x = if_else(TIME_PERIOD == 2014, TIME_PERIOD, NA),
+  ), hjust = 0, nudge_y = 50000) +
+  theme_minimal() +
+  scale_x_continuous(breaks = 2014:2021) + 
+  guides(
+    color = "none",
+    alpha = "none"
+  ) + 
+  scale_color_manual(values = pal) +
+  scale_y_continuous(limits = c(0, NA)) +
+  theme(
+    panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
+    plot.title = element_text(face = "bold", size = 18),
+    text = element_text(color = "#111d2b", family = "Segoe UI", size = 13)
+  ) +
+  labs(
+    x = "",
+    y = "Energy source (Terajules)",
+    title = "What drives Polish development?",
+    subtitle = "energy source with stake below 5% classified as others",
+    caption = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu"
+  ) 
+
+htmltools::HTML(s())
+invisible(dev.off())
+
+floor(1.99)
+1250000 %% 10^7 / 10^6
+```
+
+No major surprise - Poland consumes most of the energy from hard coal. An interesting case is also natural gas, which is characterized by high variability of use over the years. This may indicate problems with the use (power plants) or delivery of this raw material to Poland.
+
+However, returning to coal - is it an exception on a global scale; is Poland extremely carbon-intensive?
+
+```{r, out.width="100%", out.height=400}
+# light grey boundaries
+l <- list(color = toRGB("grey"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = F,
+  showcoastlines = F,
+  fitbounds = "locations",
+  projection = list(type = 'Mercator')
+)
+
+data %>%
+  filter(
+    prod_nrg %in% c(
+      "Hard coal",
+      "Brown coal and peat",
+      "Derived gases (= manufactured gases excl. biogas)",
+      "Secondary coal products (coke, coal tar, patent fuel, BKB and peat products)",
+      "Crude oil, NGL, and other hydrocarbons (excl. bio)",
+      "Natural gas (without bio)",
+      "Motor spirit (without bio)",
+      "Kerosenes and jet fuels (without bio)",
+      "Naphtha",
+      "Transport diesel (without bio)",
+      "Heating and other gasoil (without bio)",
+      "Residual fuel oil",
+      "Refinery gas, ethane and LPG",
+      "Other petroleum products incl. additives/oxygenates and refinery feedstocks",
+      "Nuclear fuel",
+      "Wood, wood waste and other solid biomass, charcoal"   
+    ),
+    TIME_PERIOD == 2021,
+    stk_flow == "Use",
+    nace_r2 == "Total - all NACE activities"
+  ) %>%
+  group_by(prod_nrg) %>%
+  mutate(
+    values = round(values / sum(values) * 100)
+  ) %>%
+  filter(prod_nrg == "Hard coal") %>%
+  left_join(
+    countrycode::codelist %>% select(iso.name.en, iso3c),
+    join_by(geo == `iso.name.en`)
+  ) %>%
+  plot_geo(locationmode = 'eu') %>% 
+  add_trace(
+    z = ~values,
+    color = ~values,
+    colors = 'Blues',
+    text = ~geo,
+    locations = ~iso3c,
+    marker = list(line = l)
+  ) %>%
+  colorbar(title = 'Hard Coal use', ticksuffix = '%', limits = c(0, 16)) %>%
+  layout(
+    title = "",
+    caption = "asd",
+    geo = g
+  )  %>%
+  layout(
+    margin = list(l = 50, r = 50, b = 100, t = 50),
+    annotations = list(
+      x = 1, y = -0.3, text = "Author: MK \n data source: eurostat \n dataset id:env_ac_pefasu",
+      xref = 'paper', yref = 'paper', showarrow = F,
+      xanchor = 'right', yanchor = 'auto', xshift = 50, yshift = 20,
+      font = list(size = 10)
+    )
+  )
+```
+
+As the map above shows, Poland is the leader in this infamous ranking. Interestingly, it is followed by Germany - with 12% of energy sources in the form of hard coal.
 
 ## Waste
 
@@ -448,8 +611,8 @@ data %>%
   theme(
     panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
     plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    plot.title = element_text(face = "bold", size = 12),
-    text = element_text(color = "#111d2b", family = "Segoe UI")
+    plot.title = element_text(face = "bold", size = 18),
+    text = element_text(color = "#111d2b", family = "Segoe UI", size = 13)
   )
 
 
@@ -460,3 +623,5 @@ invisible(dev.off())
 1. In the ranking of energy waste, the top has undergone some changes, while Poland still holds a high position, interestingly - in recent years there has been a tendency to waste energy from renewable sources - this may be a consequence of a wild energy revolution, the potential of which is wasted due to lack of energy storage and, in general, inadequate infrastructure.
 
 2. Even though Poland is ahead of countries such as Spain or Italy in this infamous ranking, it is not (at least based on these data) in the worst situation. Scandinavian countries and the Netherlands, known for their extensive use of renewable energy, are doing much worse.
+
+
