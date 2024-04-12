@@ -349,11 +349,7 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-After converting energy consumption into kcal, assuming the caloric value of chocolate at the level of 546kcal/100g, it turns out that the average Pole consumes the equivalent of electricity, which would allow for 7 tons of chocolate - that is, feeding 52 people for a whole year!
-
-Moving on to more realistic calculations... (continued)
-
-...
+After converting energy consumption into kcal, assuming the caloric value of chocolate at the level of 546kcal/100g, it turns out that the average Pole consumes the equivalent of electricity, which would allow for 7 tons of chocolate - that is, feeding 52 people for a whole year! Moving on to more realistic calculations, the same amount of energy would be sufficient for [Tesla Model X] (https://ev-lectron.com/blogs/blog/how-much-electricity-does-it-take-to-charge-a-tesla#:~:text=The%20capacity%20of%20Tesla%20electric,Model%20S%20and%20X%20variants) circle the Earth along the equator approximately **6,372 times**! Or to go on **the moon 664 times** :) 
 
 Now that we know how much energy we use, it's time to think about what we actually use?
 
@@ -432,16 +428,13 @@ data %>% filter(
 
 htmltools::HTML(s())
 invisible(dev.off())
-
-floor(1.99)
-1250000 %% 10^7 / 10^6
 ```
 
 No major surprise - Poland consumes most of the energy from hard coal. An interesting case is also natural gas, which is characterized by high variability of use over the years. This may indicate problems with the use (power plants) or delivery of this raw material to Poland.
 
 However, returning to coal - is it an exception on a global scale; is Poland extremely carbon-intensive?
 
-```{r, out.width="100%", out.height=400}
+```{r, out.width="100%", out.height=600}
 # light grey boundaries
 l <- list(color = toRGB("grey"), width = 0.5)
 
@@ -449,8 +442,13 @@ l <- list(color = toRGB("grey"), width = 0.5)
 g <- list(
   showframe = F,
   showcoastlines = F,
-  fitbounds = "locations",
-  projection = list(type = 'Mercator')
+  projection = list(type = 'Mercator'),
+  plot_bgcolor = "rgb(250, 250, 250)",
+  paper_bgcolor = "rgb(250, 250, 250)",
+  fig_bgcolor = "rgb(250, 250, 250)",
+  scope = 'europe',
+ lonaxis = list(range = c(-30, 60)),
+ lataxis = list(range = c(40, 70))
 )
 
 data %>%
@@ -486,7 +484,7 @@ data %>%
     countrycode::codelist %>% select(iso.name.en, iso3c),
     join_by(geo == `iso.name.en`)
   ) %>%
-  plot_geo(locationmode = 'eu') %>% 
+  plot_geo() %>% 
   add_trace(
     z = ~values,
     color = ~values,
@@ -508,7 +506,10 @@ data %>%
       xref = 'paper', yref = 'paper', showarrow = F,
       xanchor = 'right', yanchor = 'auto', xshift = 50, yshift = 20,
       font = list(size = 10)
-    )
+    ),
+      plot_bgcolor = "rgb(250, 250, 250)",
+      paper_bgcolor = "rgb(250, 250, 250)",
+      fig_bgcolor = "rgb(250, 250, 250)"
   )
 ```
 
@@ -623,5 +624,6 @@ invisible(dev.off())
 1. In the ranking of energy waste, the top has undergone some changes, while Poland still holds a high position, interestingly - in recent years there has been a tendency to waste energy from renewable sources - this may be a consequence of a wild energy revolution, the potential of which is wasted due to lack of energy storage and, in general, inadequate infrastructure.
 
 2. Even though Poland is ahead of countries such as Spain or Italy in this infamous ranking, it is not (at least based on these data) in the worst situation. Scandinavian countries and the Netherlands, known for their extensive use of renewable energy, are doing much worse.
+
 
 
