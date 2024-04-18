@@ -14,21 +14,23 @@ library(svglite)
 library(ggimage)
 library(extrafont)
 library(plotly)
-#font_import()
-#loadfonts(device = "win")
-#windowsFonts()
+font_import()
+loadfonts(device = "win")
+windowsFonts()
 
 knitr::opts_chunk$set(
   echo = F,
   warning = F,
   collapse = T,
+  comment = F,
+  out.width = "100%",
+  dpi = 300,
   message = F,
   dev = "svglite",
   fig.ext = ".svg"
 )
 options(scipen = 999)
 ```
-
 
 ```{r}
 searchData <- 
@@ -64,7 +66,6 @@ The source of the analyzed data is the eurostat API from the `eurostat` package.
 ## Data Understanding
 
 The analyzed data set contains information on consumption, production and energy sources. Differentiating the industry (nace_r2 classification), country (limited to EU countries) and reporting period (2008-2022) with clear gaps in the continuity of reporting by individual countries. All values are in Terajoule units.
-
 
 ```{r, out.width="100%", dpi = 300}
 s <- svgstring()
@@ -106,9 +107,10 @@ data %>%
 
 htmltools::HTML(s())
 invisible(dev.off())
+
 ```
 
-## Production 
+## Production
 
 Since the subject of this analysis is Poland, I will start by comparing it in the context of other EU countries in terms of energy production and population. This will help position Poland in relation to other member states.
 
@@ -220,8 +222,7 @@ invisible(dev.off())
 
 3.  Interestingly, none of the economies returned to their previous state of energy consumption in 2022, when restrictions and restrictions related to the pandemic were no longer so stringent.
 
-4. Poland is one of the biggest energy producers, mainly due to the its population 
-
+4.  Poland is one of the biggest energy producers, mainly due to the its population
 
 However, these are very general and abstract sentences. Not very appealing to our heuristics and intuition. So let's look from the perspective of an average citizen.
 
@@ -300,10 +301,9 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-1. The average Pole does not consume (relatively) large amounts of energy. In this respect, it is definitely on the side of the eastern part of Europe, which closes this ranking.
+1.  The average Pole does not consume (relatively) large amounts of energy. In this respect, it is definitely on the side of the eastern part of Europe, which closes this ranking.
 
-2. Of course, consumption also results directly from the industrialization of a given country - production markets will be largely responsible for the increase in this statistic.
-
+2.  Of course, consumption also results directly from the industrialization of a given country - production markets will be largely responsible for the increase in this statistic.
 
 If we want to convert 0.15TJ, which is still abstract for the average consumer, let's play a little with mathematics.
 
@@ -349,7 +349,7 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-After converting energy consumption into kcal, assuming the caloric value of chocolate at the level of 546kcal/100g, it turns out that the average Pole consumes the equivalent of electricity, which would allow for 7 tons of chocolate - that is, feeding 52 people for a whole year! Moving on to more realistic calculations, the same amount of energy would be sufficient for [Tesla Model X] (https://ev-lectron.com/blogs/blog/how-much-electricity-does-it-take-to-charge-a-tesla#:~:text=The%20capacity%20of%20Tesla%20electric,Model%20S%20and%20X%20variants) circle the Earth along the equator approximately **6,372 times**! Or to go on **the moon 664 times** :) 
+After converting energy consumption into kcal, assuming the caloric value of chocolate at the level of 546kcal/100g, it turns out that the average Pole consumes the equivalent of electricity, which would allow for 7 tons of chocolate - that is, feeding 52 people for a whole year! Moving on to more realistic calculations, the same amount of energy would be sufficient for [Tesla Model X](https://ev-lectron.com/blogs/blog/how-much-electricity-does-it-take-to-charge-a-tesla#:~:text=The%20capacity%20of%20Tesla%20electric,Model%20S%20and%20X%20variants) circle the Earth along the equator approximately **6,372 times**! Or to go on **the moon 664 times** :)
 
 Now that we know how much energy we use, it's time to think about what we actually use?
 
@@ -621,9 +621,6 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-1. In the ranking of energy waste, the top has undergone some changes, while Poland still holds a high position, interestingly - in recent years there has been a tendency to waste energy from renewable sources - this may be a consequence of a wild energy revolution, the potential of which is wasted due to lack of energy storage and, in general, inadequate infrastructure.
+1.  In the ranking of energy waste, the top has undergone some changes, while Poland still holds a high position, interestingly - in recent years there has been a tendency to waste energy from renewable sources - this may be a consequence of a wild energy revolution, the potential of which is wasted due to lack of energy storage and, in general, inadequate infrastructure.
 
-2. Even though Poland is ahead of countries such as Spain or Italy in this infamous ranking, it is not (at least based on these data) in the worst situation. Scandinavian countries and the Netherlands, known for their extensive use of renewable energy, are doing much worse.
-
-
-
+2.  Even though Poland is ahead of countries such as Spain or Italy in this infamous ranking, it is not (at least based on these data) in the worst situation. Scandinavian countries and the Netherlands, known for their extensive use of renewable energy, are doing much worse.
