@@ -2,11 +2,11 @@
 title: "Exploratory Data Analysis"
 output: 
   rmdformats::material:
-    code_folding: show
+    code_folding: hide
 css: custom.css
 ---
 # Preface
-```{r}
+```{r, include=F}
 knitr::opts_chunk$set(
   echo = F,
   warning = F,
@@ -23,18 +23,28 @@ options(scipen = 999)
 library(rvest)
 library(tidyverse)
 library(svglite)
+library(ggplot2)
 library(extrafont)
+#font_import()
+loadfonts(device = "win")
+windowsFonts()
+
 ```
 ```{r}
+
 theme_set(theme_minimal())
 theme_update(
     panel.grid.minor = element_line(size = 0.25),
     panel.grid.major = element_line(size = 0.75),
-    plot.title = element_text(face = "bold", size = 18),
-    text = element_text(color = "#111d2b", family = "Arial", size = 13),
-    panel.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    plot.background = element_rect(fill = '#fafafa', color = '#fafafa'),
-    axis.text.x = element_text(angle = 90)
+    plot.title = element_text(face = "bold", size = 22),
+    plot.subtitle = element_text(size = 16),
+    text = element_text(color = "#111d2b", family = "segoe ui", size = 18),
+    panel.background = element_rect(fill = '#ffffff', color = '#ffffff'),
+    plot.background = element_rect(fill = '#ffffff', color = '#ffffff'),
+    axis.text.x = element_text(angle = 90),
+    axis.title = element_text(face = "bold", size = 15),
+    axis.title.y = element_text(vjust = +2),
+    axis.title.x = element_text(vjust = -0.75)
 )
 
 ```
@@ -67,18 +77,22 @@ dfFifa %>%
   mutate(position = as.numeric(position)) -> dfFifa
 ```
 
-```{r}
+```{r, echo = T}
+s <- svgstring(width = 12, height = 6)
+
  dfFifa %>%
   ggplot(aes(
     x = year,
     y = position
   )) +
   geom_boxplot()
-  
+ 
+htmltools::HTML(s())
+invisible(dev.off())
 ```
 
-```{r, out.width="100%"}
-s <- svgstring(width = 17, height = 7)
+```{r, echo = T}
+s <- svgstring(width = 12, height = 6)
 
 dfFifa %>%
   group_by(year) %>%
@@ -91,19 +105,20 @@ dfFifa %>%
   ### WORST
   annotate(
     "text",
-    x = 2008,
-    y = 75, 
+    x = 2003.5,
+    y = 68, 
     label = "The worst place in \n FIFA ranking \n (2013, 78th)",
     color = "#111d2b",
-    fontface = 'bold'
+    fontface = 'bold',
+    size = 5
   ) +
   geom_point(aes(y = position), color = "#111d2b", size = 2, alpha = .5) +
   scale_x_continuous(breaks = seq(1990, max(dfFifa$year), na.rm = T, 2)) +
   scale_y_continuous( breaks = seq(0, 80, 5)) +
   annotate(
     'curve',
-    x = 2009.5,
-    y = 74,
+    x = 2006.5,
+    y = 72,
     yend = 78,
     xend = 2012.5,
     linewidth = 1,
@@ -114,11 +129,12 @@ dfFifa %>%
   ### PEAK
   annotate(
     "text",
-    x = 2012.5,
-    y = 9, 
+    x = 2012,
+    y = 16, 
     label = "Poland's peak in \n FIFA ranking \n (2017, 5th)",
     color = "#111d2b",
-    fontface = 'bold'
+    fontface = 'bold',
+    size = 5
   ) +
   geom_point(aes(y = position), color = "#111d2b", size = 2, alpha = .5) +
   scale_x_continuous(breaks = seq(1990, max(dfFifa$year), na.rm = T, 2)) +
@@ -137,7 +153,7 @@ dfFifa %>%
   labs(
     x = "Ranked year",
     y = "Position (the higher the worse)",
-    title = "How is Poland's footbal performing in the FIFA ranking?",
+    title = "How is polish footbal team performing in the FIFA ranking?",
     subtitle = "year's average with each month's rank marked",
     caption = "Author: MK \n data source: wikipedia \n men's national football team"
   )
@@ -145,6 +161,7 @@ dfFifa %>%
 htmltools::HTML(s())
 invisible(dev.off())
 ```
+
 ```{r}
 dfTeam <- 
   dfTeam %>%
@@ -164,11 +181,29 @@ dfTeam <-
 ```
 
 ```{r}
-s <- svgstring(width = 17, height = 7)
+s <- svgstring(width = 12, height = 6)
 
 dfTeam %>%
+  ggplot(aes(
+    x = goals
+  )) +
+  geom_histogram(binwidth = 5, aes(y = ..density..)) + 
+  geom_density(color = "red", size = 1.6) 
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+
+```{r, echo = T}
+s <- svgstring(width = 12, height = 6)
+
+(dfTeam %>%
   arrange(-debut) %>%
-  mutate(id = row_number()) %>%
+  mutate(
+    id = row_number(),
+    goals = cut(goals, breaks = 2)
+  ))$goals %>% table
   ggplot() + 
   geom_rect(aes(
     xmin = debut,
