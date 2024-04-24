@@ -6,6 +6,9 @@ output:
 css: custom.css
 ---
 # Preface
+
+...tbd :)
+
 ```{r, include=F}
 knitr::opts_chunk$set(
   echo = F,
@@ -25,6 +28,7 @@ library(tidyverse)
 library(svglite)
 library(ggplot2)
 library(extrafont)
+library(ggtext)
 #font_import()
 loadfonts(device = "win")
 windowsFonts()
@@ -38,7 +42,7 @@ theme_update(
     panel.grid.major = element_line(size = 0.75),
     plot.title = element_text(face = "bold", size = 22),
     plot.subtitle = element_text(size = 16),
-    text = element_text(color = "#111d2b", family = "segoe ui", size = 18),
+    text = element_text(color = "#111d2b", family = "Segoe UI", size = 18),
     panel.background = element_rect(fill = '#ffffff', color = '#ffffff'),
     plot.background = element_rect(fill = '#ffffff', color = '#ffffff'),
     axis.text.x = element_text(angle = 90),
@@ -196,22 +200,22 @@ invisible(dev.off())
 
 
 ```{r, echo = T}
-s <- svgstring(width = 12, height = 6)
+s <- svgstring(width = 12, height = 9)
 
-(dfTeam %>%
+dfTeam %>%
   arrange(-debut) %>%
   mutate(
     id = row_number(),
-    goals = cut(goals, breaks = 2)
-  ))$goals %>% table
+    goals_buket = cut(goals, breaks = c(0, 20, 45, 1000), labels = c("[0, 20]", "[20, 45]", "45+"))
+  ) %>%
   ggplot() + 
   geom_rect(aes(
     xmin = debut,
     xmax = off,
     ymin = id + .4,
     ymax = id - .4,
-    fill = goals
-  )) +
+    fill = goals_buket
+  ), show.legend = F) +
   geom_text(aes(
     x = debut - 1.5,
     y = if_else(id < 35, id, NA),
@@ -222,11 +226,32 @@ s <- svgstring(width = 12, height = 6)
     y = if_else(id >= 35, id, NA),
     label = paste0(player, " (", goals, ")")
   ), hjust = 0) + 
-  scale_x_continuous(breaks = seq(min(dfTeam$debut, na.rm = T) - 2, max(dfTeam$off, na.rm = T), 2)) +
+  scale_x_continuous(breaks = seq(min(dfTeam$debut, na.rm = T) - 2, max(dfTeam$off, na.rm = T), 4)) +
   theme(
     axis.line.y = element_blank(),
     axis.text.y = element_blank(),
-    axis.ticks.y = element_blank()
+    axis.ticks.y = element_blank(),
+    plot.subtitle = element_markdown()
+  ) + 
+  scale_fill_manual(
+    values = c(
+      "#111d2b",
+      "#2f4f77",
+      "#d1000a"
+    )
+  ) +
+  labs(
+    x = "Year played (from debut to off)",
+    y = "",
+    title = "The best stikers in the history of polish football",
+    subtitle = glue::glue(
+      "
+      divided into 3 caegories:
+      <span style = 'color: #111d2b;'> [10, 20] </span>,
+      <span style = 'color: #2f4f77;'> [20, 45] </span>,
+      <span style = 'color: #d1000a;'> 46+ </span>
+      "
+    )
   )
 
 
