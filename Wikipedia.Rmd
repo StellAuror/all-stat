@@ -1,5 +1,5 @@
 ---
-title: "Exploratory Data Analysis"
+title: "Poland through the eyes of Wikipedia"
 output: 
   rmdformats::material:
     code_folding: hide
@@ -7,7 +7,7 @@ css: custom.css
 ---
 # Preface
 
-...tbd :)
+...tbd :) dfdsf
 
 ```{r, include=F}
 knitr::opts_chunk$set(
@@ -222,6 +222,11 @@ dfTeam %>%
     label = paste0(player, " (", goals, ")")
   ), hjust = 1) + 
   geom_text(aes(
+    x = off,
+    y = id,
+    label = paste0(off - debut, "y")
+  ), hjust = 1, color = "white") + 
+  geom_text(aes(
     x = off + 1.5,
     y = if_else(id >= 35, id, NA),
     label = paste0(player, " (", goals, ")")
@@ -246,10 +251,10 @@ dfTeam %>%
     title = "The best stikers in the history of polish football",
     subtitle = glue::glue(
       "
-      divided into 3 caegories:
-      <span style = 'color: #111d2b;'> [10, 20] </span>,
-      <span style = 'color: #2f4f77;'> [20, 45] </span>,
-      <span style = 'color: #d1000a;'> 46+ </span>
+      divided by a number (binned) of scored goals:
+      <span style = 'color: #111d2b;'><b>[10, 20]</b></span>,
+      <span style = 'color: #2f4f77;'><b>[20, 45]</b></span>,
+      <span style = 'color: #d1000a;'><b>46+</b> </span>
       "
     )
   )

@@ -7,7 +7,7 @@
 
     
     
-    <title>Exploratory Data Analysis</title>
+    <title>Poland through the eyes of Wikipedia</title>
     <!-- Material Design fonts -->
     <style type="text/css">@font-face {
 font-family: 'Roboto';
@@ -1083,7 +1083,7 @@ display: none;
       <div class="row">
         <div class="col-xs-3">
 	  	  <div id="header">
-	    <h1 class="title">Exploratory Data Analysis</h1>
+	    <h1 class="title">Poland through the eyes of Wikipedia</h1>
 	    	    	    	  </div>
 	  	</div>
       </div>
@@ -1112,7 +1112,7 @@ Footbal</a></li>
 <div class="col-xs-10">
 <div id="preface" class="section level1">
 <h1>Preface</h1>
-<p>…tbd :)</p>
+<p>…tbd :) dfdsf</p>
 </div>
 <div id="polish-footbal" class="section level1">
 <h1>Polish Footbal</h1>
@@ -2376,22 +2376,29 @@ white-space: pre;
 <span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>    <span class="at">axis.ticks.y =</span> <span class="fu">element_blank</span>(),</span>
 <span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_markdown</span>()</span>
 <span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;Year played (from debut to off)&quot;</span>,</span>
-<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;&quot;</span>,</span>
-<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;The best stikers in the history of polish football&quot;</span>,</span>
-<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a>    <span class="at">subtitle =</span> glue<span class="sc">::</span><span class="fu">glue</span>(</span>
-<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a>      <span class="st">&quot;</span></span>
-<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="st">      divided into 3 caegories:</span></span>
-<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="st">      &lt;span style = &#39;color: red;&#39;&gt; [10, 20] &lt;/span&gt;,</span></span>
-<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="st">      &lt;span style = &#39;color: darkgreen;&#39;&gt; [20, 45] &lt;/span&gt;,</span></span>
-<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="st">      &lt;span style = &#39;color: blue;&#39;&gt; 46+ &lt;/span&gt;</span></span>
-<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="st">      &quot;</span></span>
-<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a>    )</span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a>  )</span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a>htmltools<span class="sc">::</span><span class="fu">HTML</span>(<span class="fu">s</span>())</span></code></pre></div>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a>      <span class="st">&quot;#111d2b&quot;</span>,</span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a>      <span class="st">&quot;#2f4f77&quot;</span>,</span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a>      <span class="st">&quot;#d1000a&quot;</span></span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a>    )</span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;Year played (from debut to off)&quot;</span>,</span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;&quot;</span>,</span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;The best stikers in the history of polish football&quot;</span>,</span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a>    <span class="at">subtitle =</span> glue<span class="sc">::</span><span class="fu">glue</span>(</span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a>      <span class="st">&quot;</span></span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="st">      divided into 3 caegories:</span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="st">      &lt;span style = &#39;color: #111d2b;&#39;&gt; [10, 20] &lt;/span&gt;,</span></span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="st">      &lt;span style = &#39;color: #2f4f77;&#39;&gt; [20, 45] &lt;/span&gt;,</span></span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a><span class="st">      &lt;span style = &#39;color: #d1000a;&#39;&gt; 46+ &lt;/span&gt;</span></span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a><span class="st">      &quot;</span></span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a>    )</span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a>  )</span>
+<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a></span>
+<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a>htmltools<span class="sc">::</span><span class="fu">HTML</span>(<span class="fu">s</span>())</span></code></pre></div>
 <?xml version="1.0" encoding="UTF-8" ?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="svglite" width="864.00pt" height="648.00pt" viewBox="0 0 864.00 648.00">
 <defs>
@@ -2490,45 +2497,45 @@ white-space: pre;
 <polyline points="752.08,589.76 752.08,52.00 " style="stroke-width: 1.60; stroke: #EBEBEB; stroke-linecap: butt;"></polyline>
 <polyline points="780.94,589.76 780.94,52.00 " style="stroke-width: 1.60; stroke: #EBEBEB; stroke-linecap: butt;"></polyline>
 <polyline points="809.81,589.76 809.81,52.00 " style="stroke-width: 1.60; stroke: #EBEBEB; stroke-linecap: butt;"></polyline>
-<rect x="788.16" y="555.24" width="21.65" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="766.51" y="542.64" width="43.30" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="730.43" y="530.04" width="79.38" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="723.21" y="517.44" width="86.60" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="694.34" y="504.84" width="115.47" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;"></rect>
-<rect x="694.34" y="492.24" width="115.47" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="679.91" y="479.64" width="122.68" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;"></rect>
-<rect x="651.04" y="467.04" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="636.61" y="454.44" width="28.87" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="629.39" y="441.84" width="36.08" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="629.39" y="429.24" width="50.52" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="622.18" y="416.64" width="72.17" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="622.18" y="404.04" width="79.38" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="614.96" y="391.44" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="578.88" y="378.84" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="571.66" y="366.24" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="550.01" y="353.64" width="50.52" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="535.58" y="341.04" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="521.14" y="328.44" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="499.49" y="315.84" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="492.28" y="303.24" width="86.60" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="477.84" y="290.64" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="463.41" y="278.04" width="86.60" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;"></rect>
-<rect x="441.76" y="265.44" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;"></rect>
-<rect x="427.33" y="252.84" width="93.82" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;"></rect>
-<rect x="405.68" y="240.24" width="72.17" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;"></rect>
-<rect x="398.46" y="227.64" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="391.24" y="215.04" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="384.03" y="202.44" width="50.52" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="369.59" y="189.84" width="122.68" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;"></rect>
-<rect x="369.59" y="177.24" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="340.73" y="164.64" width="72.17" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="311.86" y="152.04" width="72.17" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;"></rect>
-<rect x="304.64" y="139.44" width="108.25" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="254.13" y="126.84" width="79.38" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;"></rect>
-<rect x="174.74" y="114.24" width="21.65" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="160.31" y="101.64" width="36.08" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;"></rect>
-<rect x="117.01" y="89.04" width="50.52" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
-<rect x="73.71" y="76.44" width="43.30" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;"></rect>
+<rect x="788.16" y="555.24" width="21.65" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="766.51" y="542.64" width="43.30" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="730.43" y="530.04" width="79.38" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="723.21" y="517.44" width="86.60" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="694.34" y="504.84" width="115.47" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #D1000A;"></rect>
+<rect x="694.34" y="492.24" width="115.47" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="679.91" y="479.64" width="122.68" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #2F4F77;"></rect>
+<rect x="651.04" y="467.04" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="636.61" y="454.44" width="28.87" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="629.39" y="441.84" width="36.08" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="629.39" y="429.24" width="50.52" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="622.18" y="416.64" width="72.17" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="622.18" y="404.04" width="79.38" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="614.96" y="391.44" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="578.88" y="378.84" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="571.66" y="366.24" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="550.01" y="353.64" width="50.52" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="535.58" y="341.04" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="521.14" y="328.44" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="499.49" y="315.84" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="492.28" y="303.24" width="86.60" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="477.84" y="290.64" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="463.41" y="278.04" width="86.60" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #2F4F77;"></rect>
+<rect x="441.76" y="265.44" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #2F4F77;"></rect>
+<rect x="427.33" y="252.84" width="93.82" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #2F4F77;"></rect>
+<rect x="405.68" y="240.24" width="72.17" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #2F4F77;"></rect>
+<rect x="398.46" y="227.64" width="57.73" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="391.24" y="215.04" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="384.03" y="202.44" width="50.52" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="369.59" y="189.84" width="122.68" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #D1000A;"></rect>
+<rect x="369.59" y="177.24" width="64.95" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="340.73" y="164.64" width="72.17" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="311.86" y="152.04" width="72.17" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #2F4F77;"></rect>
+<rect x="304.64" y="139.44" width="108.25" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="254.13" y="126.84" width="79.38" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #2F4F77;"></rect>
+<rect x="174.74" y="114.24" width="21.65" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="160.31" y="101.64" width="36.08" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #2F4F77;"></rect>
+<rect x="117.01" y="89.04" width="50.52" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
+<rect x="73.71" y="76.44" width="43.30" height="10.08" style="stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #111D2B;"></rect>
 <text x="777.33" y="564.23" text-anchor="end" style="font-size: 11.04px; font-family: &quot;Arial&quot;;" textLength="98.68px" lengthAdjust="spacingAndGlyphs">Karol Świderski (10)</text>
 <text x="755.68" y="551.63" text-anchor="end" style="font-size: 11.04px; font-family: &quot;Arial&quot;;" textLength="100.94px" lengthAdjust="spacingAndGlyphs">Krzysztof Piątek (11)</text>
 <text x="719.60" y="539.03" text-anchor="end" style="font-size: 11.04px; font-family: &quot;Arial&quot;;" textLength="87.44px" lengthAdjust="spacingAndGlyphs">Piotr Zieliński (11)</text>
@@ -2602,13 +2609,13 @@ white-space: pre;
 <text x="81.41" y="42.75" style="font-size: 16.00px;fill: #111D2B; font-family: &quot;Segoe UI&quot;;" textLength="27.60px" lengthAdjust="spacingAndGlyphs">into</text>
 <text x="113.39" y="42.75" style="font-size: 16.00px;fill: #111D2B; font-family: &quot;Segoe UI&quot;;" textLength="8.63px" lengthAdjust="spacingAndGlyphs">3</text>
 <text x="126.40" y="42.75" style="font-size: 16.00px;fill: #111D2B; font-family: &quot;Segoe UI&quot;;" textLength="70.75px" lengthAdjust="spacingAndGlyphs">caegories:</text>
-<text x="205.93" y="42.75" style="font-size: 16.00px;fill: #FF0000; font-family: &quot;Segoe UI&quot;;" textLength="25.55px" lengthAdjust="spacingAndGlyphs">[10,</text>
-<text x="235.87" y="42.75" style="font-size: 16.00px;fill: #FF0000; font-family: &quot;Segoe UI&quot;;" textLength="22.08px" lengthAdjust="spacingAndGlyphs">20]</text>
+<text x="205.93" y="42.75" style="font-size: 16.00px;fill: #111D2B; font-family: &quot;Segoe UI&quot;;" textLength="25.55px" lengthAdjust="spacingAndGlyphs">[10,</text>
+<text x="235.87" y="42.75" style="font-size: 16.00px;fill: #111D2B; font-family: &quot;Segoe UI&quot;;" textLength="22.08px" lengthAdjust="spacingAndGlyphs">20]</text>
 <text x="262.33" y="42.75" style="font-size: 16.00px;fill: #111D2B; font-family: &quot;Segoe UI&quot;;" textLength="3.47px" lengthAdjust="spacingAndGlyphs">,</text>
-<text x="274.57" y="42.75" style="font-size: 16.00px;fill: #006400; font-family: &quot;Segoe UI&quot;;" textLength="25.55px" lengthAdjust="spacingAndGlyphs">[20,</text>
-<text x="304.51" y="42.75" style="font-size: 16.00px;fill: #006400; font-family: &quot;Segoe UI&quot;;" textLength="22.08px" lengthAdjust="spacingAndGlyphs">45]</text>
+<text x="274.57" y="42.75" style="font-size: 16.00px;fill: #2F4F77; font-family: &quot;Segoe UI&quot;;" textLength="25.55px" lengthAdjust="spacingAndGlyphs">[20,</text>
+<text x="304.51" y="42.75" style="font-size: 16.00px;fill: #2F4F77; font-family: &quot;Segoe UI&quot;;" textLength="22.08px" lengthAdjust="spacingAndGlyphs">45]</text>
 <text x="330.98" y="42.75" style="font-size: 16.00px;fill: #111D2B; font-family: &quot;Segoe UI&quot;;" textLength="3.47px" lengthAdjust="spacingAndGlyphs">,</text>
-<text x="343.22" y="42.75" style="font-size: 16.00px;fill: #0000FF; font-family: &quot;Segoe UI&quot;;" textLength="28.20px" lengthAdjust="spacingAndGlyphs">46+</text>
+<text x="343.22" y="42.75" style="font-size: 16.00px;fill: #D1000A; font-family: &quot;Segoe UI&quot;;" textLength="28.20px" lengthAdjust="spacingAndGlyphs">46+</text>
 <text x="25.00" y="20.89" style="font-size: 22.00px; font-weight: bold;fill: #111D2B; font-family: &quot;Segoe UI&quot;;" textLength="488.89px" lengthAdjust="spacingAndGlyphs">The best stikers in the history of polish football</text>
 </g>
 </svg>
