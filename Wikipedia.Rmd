@@ -53,7 +53,7 @@ theme_update(
 
 ```
 
-# Polish Footbal
+# Football
 ```{r}
 
 url <- "https://pl.wikipedia.org/wiki/Reprezentacja_Polski_w_pi%C5%82ce_no%C5%BCnej_m%C4%99%C5%BCczyzn"
@@ -67,6 +67,9 @@ dfFifa <- dfList[[dfFifaPosition]]
 
 dfTeamPosition <- which(sapply(dfList, nrow) >= 38 & sapply(dfList, ncol) == 6)
 dfTeam <- dfList[[dfTeamPosition]]
+
+dfRivalPosition <- which(sapply(dfList, nrow) >= 99 & sapply(dfList, ncol) == 8)
+dfRival <- dfList[[dfRivalPosition]]
 ```
 
 ```{r}
@@ -80,20 +83,10 @@ dfFifa %>%
   ) %>%
   mutate(position = as.numeric(position)) -> dfFifa
 ```
+## The FIFA ranking {.tabset .tabset-pills}
 
-```{r, echo = T}
-s <- svgstring(width = 12, height = 6)
 
- dfFifa %>%
-  ggplot(aes(
-    x = year,
-    y = position
-  )) +
-  geom_boxplot()
- 
-htmltools::HTML(s())
-invisible(dev.off())
-```
+### Position {.tabset .tabset-pills}
 
 ```{r, echo = T}
 s <- svgstring(width = 12, height = 6)
@@ -103,27 +96,27 @@ dfFifa %>%
   mutate(mean = mean(position, na.rm = T)) %>%
   ggplot(aes(
     x = as.numeric(year),
-    y = mean
+    y = -mean
   )) +
   geom_line(color = "#F93943", size = 1.7) + 
   ### WORST
   annotate(
     "text",
     x = 2003.5,
-    y = 68, 
+    y = -68, 
     label = "The worst place in \n FIFA ranking \n (2013, 78th)",
     color = "#111d2b",
     fontface = 'bold',
     size = 5
   ) +
-  geom_point(aes(y = position), color = "#111d2b", size = 2, alpha = .5) +
+  geom_point(aes(y = -position), color = "#111d2b", size = 2, alpha = .5) +
   scale_x_continuous(breaks = seq(1990, max(dfFifa$year), na.rm = T, 2)) +
-  scale_y_continuous( breaks = seq(0, 80, 5)) +
+  scale_y_continuous(breaks = seq(0, -80, -5), labels =  seq(0, 80, 5)) +
   annotate(
     'curve',
     x = 2006.5,
-    y = 72,
-    yend = 78,
+    y = -72,
+    yend = -78,
     xend = 2012.5,
     linewidth = 1,
     curvature = -0.2,
@@ -134,20 +127,18 @@ dfFifa %>%
   annotate(
     "text",
     x = 2012,
-    y = 16, 
+    y = -22, 
     label = "Poland's peak in \n FIFA ranking \n (2017, 5th)",
     color = "#111d2b",
     fontface = 'bold',
     size = 5
   ) +
-  geom_point(aes(y = position), color = "#111d2b", size = 2, alpha = .5) +
-  scale_x_continuous(breaks = seq(1990, max(dfFifa$year), na.rm = T, 2)) +
-  scale_y_continuous( breaks = seq(0, 80, 5)) +
+  geom_point(aes(y = -position), color = "#111d2b", size = 2, alpha = .5) +
   annotate(
     'curve',
     x = 2014,
-    y = 11.5,
-    yend = 6.5,
+    y = -11.5,
+    yend = -6.5,
     xend = 2016.5,
     linewidth = 1,
     curvature = -0.35,
@@ -165,6 +156,25 @@ dfFifa %>%
 htmltools::HTML(s())
 invisible(dev.off())
 ```
+
+### Clear boxplot {.tabset .tabset-pills}
+
+
+```{r, echo = T}
+s <- svgstring(width = 12, height = 6)
+
+ dfFifa %>%
+  ggplot(aes(
+    x = year,
+    y = position
+  )) +
+  geom_boxplot()
+ 
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+## Top Strikers {.tabset .tabset-pills}
 
 ```{r}
 dfTeam <- 
@@ -184,20 +194,7 @@ dfTeam <-
 
 ```
 
-```{r}
-s <- svgstring(width = 12, height = 6)
-
-dfTeam %>%
-  ggplot(aes(
-    x = goals
-  )) +
-  geom_histogram(binwidth = 5, aes(y = ..density..)) + 
-  geom_density(color = "red", size = 1.6) 
-
-htmltools::HTML(s())
-invisible(dev.off())
-```
-
+### Legends od polish football {.tabset .tabset-pills}
 
 ```{r, echo = T}
 s <- svgstring(width = 12, height = 9)
@@ -206,7 +203,7 @@ dfTeam %>%
   arrange(-debut) %>%
   mutate(
     id = row_number(),
-    goals_buket = cut(goals, breaks = c(0, 20, 45, 1000), labels = c("[0, 20]", "[20, 45]", "45+"))
+    goals_buket = cut(goals, breaks = c(0, 19, 39, 1000), labels = c("[0, 19]", "[20, 39]", "40+"))
   ) %>%
   ggplot() + 
   geom_rect(aes(
@@ -252,8 +249,8 @@ dfTeam %>%
     subtitle = glue::glue(
       "
       divided by a number (binned) of scored goals:
-      <span style = 'color: #111d2b;'><b>[10, 20]</b></span>,
-      <span style = 'color: #2f4f77;'><b>[20, 45]</b></span>,
+      <span style = 'color: #111d2b;'><b>[10, 19]</b></span>,
+      <span style = 'color: #2f4f77;'><b>[20, 39]</b></span>,
       <span style = 'color: #d1000a;'><b>46+</b> </span>
       "
     )
@@ -263,4 +260,121 @@ dfTeam %>%
 htmltools::HTML(s())
 invisible(dev.off())
 ```
+
+### Efficiency {.tabset .tabset-pills}
+
+```{r, echo = T}
+s <- svgstring(width = 12, height = 9)
+
+
+dfTeam <- 
+  dfTeam %>%
+  mutate(
+    ratio = round(goals / matches, 2)
+  )
+
+mostEfficient <- (
+  dfTeam %>%
+  top_n(., 5, ratio)
+  )$player
+
+dfTeam %>%
+  mutate(isTop = player %in% mostEfficient) %>%
+  ggplot(aes(
+    x = goals,
+    y = matches,
+    size = ratio,
+    color = isTop
+  )) + 
+  geom_point(alpha = .7)
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+### Score distribution {.tabset .tabset-pills}
+
+```{r, echo = T}
+s <- svgstring(width = 12, height = 6)
+
+dfTeam %>%
+  ggplot(aes(
+    x = goals
+  )) +
+  geom_histogram(binwidth = 5, aes(y = ..density..)) + 
+  geom_density(color = "red", size = 1.6) 
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+## Rivals 
+
+```{r, echo = T}
+dfRival <- dfRival %>%
+  mutate(RG = GZ - GS) 
+
+dfRival %>%
+  ggplot(aes(
+    x = RG,
+    y = ""
+  )) + 
+  geom_violin()
+
+dfRival %>%
+  ggplot(aes(
+    x = M,
+    y = .5
+  )) +
+  geom_violin() +
+  geom_point(aes(
+    y =  sample(400:600, nrow(dfRival), T) / 1000
+  )) 
+
+dfRival %>%
+  arrange(-M) %>% 
+  head %>%
+  ggplot(aes(
+    x = M,
+    y = Rywal
+  )) +
+  geom_col()
+```
+```{r}
+dfRival %>%
+  mutate(
+    q1 = quantile(RG, .25),
+    q3 = quantile(RG, .75),
+    IQR = IQR(RG),
+    lLim = (q1 - (IQR * 1.5)),
+    rLim = (q3 + (IQR * 1.5)),
+    outlier = if_else( lLim >= RG | rLim <= RG, T, F)
+  ) %>%
+  ggplot(aes(
+    x = RG,
+    y = reorder(Rywal, RG),
+    fill = outlier
+  )) +
+  geom_col()
+```
+```{r}
+dfRival %>%
+  mutate(diff = GZ - GS) %>%
+  ggplot() +
+  geom_segment(aes(
+    x = GZ,
+    xend = GS,
+    y = reorder(Rywal, diff),
+    yend = reorder(Rywal, diff)
+  )) +
+  geom_point(aes(
+    x = GZ,
+    y = reorder(Rywal, diff)
+  ), color = "blue") +
+  geom_point(aes(
+    x = GS,
+    y = reorder(Rywal, diff)
+  ), color = "red")
+```
+
 
