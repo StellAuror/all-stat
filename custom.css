@@ -17,3 +17,19 @@ svg {
     width: 100%;
     height: auto;
 }
+
+.nav-pills>li>a:hover, .nav-pills>li>a:focus, .nav-pills>li.active>a,     .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus{
+   background-color: #F93943;
+ }  
+ 
+.nav-pills>li>a {
+    color: #f97f85;
+ }
+ 
+.nav-pills > li:nth-of-type(2)>a {
+    color: #f97f85;
+ }
+ 
+ h1, h2 {
+   font-weight: bold;
+ }

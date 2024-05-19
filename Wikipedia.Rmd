@@ -5,9 +5,28 @@ output:
     code_folding: hide
 css: custom.css
 ---
-# Preface
 
-...tbd :) dfdsf
+# [Preface]{style="color: #F93943;"}
+
+Poland, officially known as the Republic of Poland (Rzeczpospolita Polska), is a captivating country nestled in Central Europe. From the Baltic Sea in the north to the Sudetes and Carpathian Mountains in the south, Poland boasts a diverse landscape that encompasses both natural beauty and historical significance.
+
+## **Handful of key facts:**
+
+-   **Geography:** Poland’s territory spans from the Baltic coast to the picturesque mountain ranges. The Vistula River, the longest in the country, meanders through its heartland.
+
+-   **Population:** With over 38 million inhabitants, Poland is the fifth-most populous member state of the European Union. Its vibrant culture and rich history have shaped a resilient and proud nation.
+
+-   **Language:** Polish is the official language, spoken by nearly everyone. The country’s linguistic heritage reflects its complex history and diverse influences.
+
+-   **History:** From prehistoric settlements to the establishment of statehood in 966, Poland’s journey has been marked by resilience, cultural exchange, and pivotal moments. The tribal Polans, who gave the country its name, played a crucial role in shaping its identity.
+
+-   **Economy:** Poland’s economy is robust, with a mix of industry, agriculture, and services. It ranks among the top 20 economies globally in terms of GDP (PPP).
+
+-   **Religion:** Catholicism has deep roots in Poland, with over 70% of the population identifying as Christian. The country’s religious heritage is intertwined with its national identity.
+
+-   **Cities:** Warsaw, the capital, stands as a testament to Poland’s resilience after World War II. Other major cities like Kraków, Wrocław, Łódź, Poznań, and Gdańsk contribute to the country’s vibrant urban life.
+
+Whether you’re drawn to its medieval castles, vibrant festivals, or hearty cuisine, Poland offers a rich tapestry of experiences. Join us on a journey through this remarkable country, where tradition meets modernity, and history echoes in every cobblestone street.
 
 ```{r, include=F}
 knitr::opts_chunk$set(
@@ -34,6 +53,7 @@ loadfonts(device = "win")
 windowsFonts()
 
 ```
+
 ```{r}
 
 theme_set(theme_minimal())
@@ -53,7 +73,219 @@ theme_update(
 
 ```
 
-# Football
+# [Demography]{style="color: #F93943;"}
+
+```{r}
+url <- "https://pl.wikipedia.org/wiki/Demografia_Polski"
+dfList <- 
+  read_html(url) %>%
+  html_nodes(., '.wikitable') %>%
+  html_table(., fill = TRUE)
+
+dfAgePosition <- which(sapply(dfList, nrow) == 26 & sapply(dfList, ncol) == 5)
+dfAge <- dfList[[dfAgePosition[2]]]
+
+dfPopChangePosition <- which(sapply(dfList, ncol) == 12)
+dfPopChange <- dfList[[dfPopChangePosition]]
+
+names(dfAge) <- c("Age", "Men", "Women", "All", "%age")
+```
+
+## **Poland's Demographic Structure (2015)** {.tabset .tabset-pills}
+
+The population pyramid displayed above offers a comprehensive snapshot of Poland's demographic landscape in 2015, segmented by gender. This graphical representation delineates the population distribution across various age cohorts, highlighting the differences between males and females.
+
+#### **Youth Population**:
+
+The youngest age groups (0-4 and 5-9) exhibit a balanced distribution between males and females, suggesting consistent birth rates during this period.
+
+#### **Working-Age Population**:
+
+Individuals in the 20-24 to 50-54 age brackets form the core of Poland's working-age population. Here, the gender distribution is relatively even, though females slightly outnumber males in most cohorts.
+
+#### **Elderly Population**:
+
+A significant feature of this pyramid is the pronounced female majority in the older age groups, starting from 60-64 years onward. This trend reflects the higher life expectancy among women, a common demographic pattern observed globally.
+
+#### **Aging Population**:
+
+The pyramid’s shape, narrowing at the base and widening towards the top, underscores an aging population. The larger cohorts in the older age groups indicate a substantial elderly population, pointing to potential challenges and needs in healthcare and social services.
+
+### Age Pyramid
+
+```{r}
+s <- svgstring(width = 10, height = 15)
+
+ageBins <- c(paste0(seq(0, 99, 5), "-", seq(4, 100, 5)), "100+")
+dfAge[2:22, ]$Age <- ageBins
+
+dfAge[nrow(dfAge) - 4:nrow(dfAge),] %>%
+  mutate(
+    Age = factor(Age, levels = ageBins, ordered = T),
+    Women = sub(" ", "", sub(" ", "", Women)) %>% as.numeric,
+    Men =  sub(" ", "", sub(" ", "", Men)) %>% as.numeric,
+    `%age` = sub(",", ".", `%age`) %>% as.numeric
+  ) %>%
+  filter(Age != "Ogółem") %>%
+  ggplot(aes(
+    y = Age
+  )) +
+  geom_col(aes(x = Women), fill = "#d1000a") +
+  geom_col(aes(x = -Men), fill = "#111d2b") +
+  geom_text(aes(
+    x = Women,
+    label = format(Women, big.mark = " ", scientific = F),
+    color = if_else(Women < 10^5*2, "black", "white"),
+    hjust = if_else(Women < 10^5*2, 0, 1)
+  ), show.legend = F) +
+  geom_text(aes(
+    x = -Men,
+    label = format(Men, big.mark = " ", scientific = F),
+    color = if_else(Men < 10^5*2, "black", "white"),
+    hjust = if_else(Men < 10^5*2, 1, 0)
+  ), show.legend = F) +
+  scale_color_manual(values = c("black", "white")) +
+  scale_x_continuous(
+    breaks = seq(-1500000, 15000000, 500000),
+    labels = format(abs(seq(-1500000, 15000000, 500000)), big.mark = " ", scientific = F)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "Poland's demography (estimation, 2015)",
+    subtitle = glue::glue(
+      "
+      gender-wise comparisons: 
+      <span style = 'color: #111d2b;'><b>men</b></span>,
+      <span style = 'color: #d1000a;'><b>women</b> </span>
+      "
+    ),
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n demography")
+  ) +
+  theme(
+    plot.subtitle = element_markdown()
+  )
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+### Proportion Curve
+
+```{r}
+s <- svgstring(width = 11, height = 7)
+
+dfAge[nrow(dfAge) - 4:nrow(dfAge),] %>%
+  mutate(
+    Age = factor(Age, levels = ageBins, ordered = T),
+    Women = sub(" ", "", sub(" ", "", Women)) %>% as.numeric,
+    Men =  sub(" ", "", sub(" ", "", Men)) %>% as.numeric,
+    `%age` = sub(",", ".", `%age`) %>% as.numeric,
+    rown = row_number(),
+    Proportion = Men / Women
+  ) %>%
+  filter(Age != "Ogółem") %>%
+  ggplot(aes(
+    x = Proportion,
+    y = reorder(Age, -rown)
+  )) +
+  geom_path(color = "#d1000a", size = 2, aes(group = "")) +
+  coord_flip() +
+  geom_text(aes(label = round(Proportion, 2)), angle = 90, nudge_x = .055, color = "#111d2b", fontface = "bold") +
+  labs(
+    x = "Number of males per 1 female",
+    y = "",
+    title = "Poland's demography (estimation, 2015)",
+    subtitle = "How many males are there per female?",
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n demography")
+  ) + 
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text.y = element_blank(),
+    panel.grid.major.x = element_line(linewidth = .1, linetype = 2, color = "#111d2b")
+  )
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+## Births
+
+#### **Post-War Baby Boom (1946-1953)** 
+The chart showcases a significant rise in births following World War II. This surge, evident in many European nations, reflects a post-war baby boom as families reunited and looked towards rebuilding.
+
+#### **Second Increase and Decline (1970s-Present)**
+The chart indicates another period of increased births in the early 1970s, extending into the 1980s. This rise could be attributed to government policies or economic prosperity that provided stability for families. However, a concerning trend emerges – a steady decline in birthrate since the early 1980s. This continuous downward slope suggests Poland's birthrate has fallen below replacement level.
+
+#### **Possible Causes for Decline** 
+The chart itself doesn't pinpoint the reasons behind the decline, but some educated guesses can be made. Urbanization, with its smaller living spaces, might be a contributing factor.  Furthermore, increased educational opportunities for women may be leading to later marriages and childbearing. Economic insecurity, a global concern, could also be discouraging couples from having children. It paints a clear picture: Poland's birthrate has undergone a significant decline in recent decades. While the reasons are likely multifaceted – urbanization, educational advancements, economic uncertainty – the consequences are undeniable. A shrinking workforce and an aging population pose challenges for Poland's social security systems, economic growth, and healthcare infrastructure.
+
+```{r}
+s <- svgstring(width = 15, height = 10)
+
+dfPopChange %>%
+  mutate(
+    Przyrostnaturalny =  sub("−", "", sub("–", "-", sub(" ", "", Przyrostnaturalny))) %>% as.numeric,
+    Rok = as.numeric(substr(Rok, 1, 4))
+  ) %>%
+  ggplot(aes(
+    x = Rok,
+    y = Przyrostnaturalny
+  )) +
+  geom_vline(xintercept = 1964.5, color = "#111d2b", alpha = .4, size = 1.3) +
+  geom_text(aes(x = 1964, y = 10^5*5.5, label = "Baby Boomers"), hjust = 1, size = 6, color = "#111d2b", family = "Segoe UI") +
+  geom_vline(xintercept = 1978.5, color = "#111d2b", alpha = .4, size = 1.3) +
+  geom_text(aes(x = 1978, y = 10^5*5.5, label = "Gen. X"), hjust = 1, size = 6, color = "#111d2b", family = "Segoe UI") +
+  geom_vline(xintercept = 1994.5, color = "#111d2b", alpha = .4, size = 1.3) +
+  geom_text(aes(x = 1994, y = 10^5*5.5, label = "Gen. Y"), hjust = 1, size = 6, color = "#111d2b", family = "Segoe UI") +
+  geom_vline(xintercept = 2011.5, color = "#111d2b", alpha = .4, size = 1.3) +
+  geom_text(aes(x = 2011, y = 10^5*5.5, label = "Gen. Z"), hjust = 1, size = 6, color = "#111d2b", family = "Segoe UI") +
+  geom_text(aes(x = 2023, y = 10^5*5.5, label = "Gen. Alpha"), hjust = 1, size = 6, color = "#111d2b", family = "Segoe UI") +
+  geom_col(fill = "#d1000a") +
+  geom_text(aes(
+    label = format(Przyrostnaturalny, big.mark = " ", scientific = F),
+    hjust = case_when(
+      Przyrostnaturalny >= 10^4*5 ~ 1,
+      Przyrostnaturalny >= 0 ~ 0,
+      Przyrostnaturalny < -10^4*5 ~ 0,
+      T ~ 1
+    ),
+    color = case_when(
+      Przyrostnaturalny >=  10^4*5 ~ "white",
+      Przyrostnaturalny >= 0 ~ "black",
+      Przyrostnaturalny < -10^4*5 ~ "white",
+      T ~ "black"
+    )
+  ), angle = 90, show.legend = F, fontface = "bold") +
+  scale_color_manual(values = c("#111d2b", "white")) +
+  scale_y_continuous(
+    breaks = seq(-200000, 600000, 100000),
+    labels = format(abs(seq(-200000, 600000, 100000)), big.mark = " ", scientific = F)
+   ) +
+  scale_x_continuous(
+    breaks = seq(1945.5, 2023.5, 2),
+    labels = seq(1945, 2023, 2)
+   ) +
+  labs(
+    x = "",
+    y = "Birthrate",
+    title = "Poland's Birthrate (1946-2023)",
+    subtitle = "from babyboomers to alpha generation",
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n demography")
+  ) +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+
+# [Men's Football]{style="color: #F93943;"}
+
 ```{r}
 
 url <- "https://pl.wikipedia.org/wiki/Reprezentacja_Polski_w_pi%C5%82ce_no%C5%BCnej_m%C4%99%C5%BCczyzn"
@@ -83,10 +315,30 @@ dfFifa %>%
   ) %>%
   mutate(position = as.numeric(position)) -> dfFifa
 ```
-## The FIFA ranking {.tabset .tabset-pills}
 
+## **The FIFA ranking (1990 - 2024)** {.tabset .tabset-pills}
 
-### Position {.tabset .tabset-pills}
+The performance trajectory of Poland's national football team in the FIFA rankings offers a compelling narrative of fluctuating fortunes over the past three decades. As depicted in the accompanying chart, Poland's journey in the rankings is marked by significant highs and lows, reflecting periods of both decline and resurgence.
+
+![World Cup 2022, Poland National Team (Twitter \@LaczyNasPilka)](images/202206271320-main.cropped_1656310876-01.svg)
+
+#### **Early Years: Stability and Initial Decline (1990-2005)**
+
+In the early 1990s, Poland's national team maintained a relatively stable position within the top 30 of the FIFA rankings. This period was characterized by consistent performances and a solid standing in international football. However, this stability began to wane in the mid-1990s. By 1997, the team experienced a noticeable drop, slipping out of the top 30 and continuing a downward trend that would culminate in their lowest point.
+
+#### **The Nadir: Hitting Rock Bottom (2006-2013)**
+
+The years 2006 to 2013 were particularly challenging for the Polish team. The chart highlights a dramatic plunge in rankings during this period, reaching the lowest point in 2013 when Poland was ranked 78th in the world. This phase was marked by underwhelming performances and a struggle to compete effectively on the international stage.
+
+#### **The Resurgence: Climbing to New Heights (2014-2017)**
+
+Despite the setbacks, the mid-2010s marked a period of remarkable recovery and resurgence for Poland. Starting from 2014, the team began a steady ascent in the rankings. This upward momentum reached its zenith in 2017, when Poland achieved its highest-ever FIFA ranking, climbing to 5th place. This remarkable turnaround can be attributed to a combination of strategic changes, improved player performances, and successful qualification campaigns.
+
+#### **Recent Years: Maintaining a Competitive Edge (2018-2023)**
+
+Following their peak in 2017, Poland's ranking saw a slight decline but has remained within a competitive range, generally fluctuating between the 15th and 30th positions. This period indicates a phase of relative stability and competitiveness, reflecting the team's ability to maintain a solid presence in international football.
+
+### Position over years
 
 ```{r, echo = T}
 s <- svgstring(width = 12, height = 6)
@@ -147,18 +399,19 @@ dfFifa %>%
   ) +
   labs(
     x = "Ranked year",
-    y = "Position (the higher the worse)",
+    y = "Position",
     title = "How is polish footbal team performing in the FIFA ranking?",
     subtitle = "year's average with each month's rank marked",
-    caption = "Author: MK \n data source: wikipedia \n men's national football team"
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n men's national football team")
   )
 
 htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-### Clear boxplot {.tabset .tabset-pills}
+Poland's peak in 2017 is particularly noteworthy, as it signifies the culmination of efforts to rebuild and strengthen the team. Maintaining a competitive position in recent years suggests that Poland has established a more consistent framework for success, which could bode well for future international competitions.
 
+### Clear boxplot
 
 ```{r, echo = T}
 s <- svgstring(width = 12, height = 6)
@@ -168,13 +421,46 @@ s <- svgstring(width = 12, height = 6)
     x = year,
     y = position
   )) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(
+    x = "Ranked year",
+    y = "Position",
+    title = "How is polish footbal team performing in the FIFA ranking?",
+    subtitle = "year's average with each month's rank marked",
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n men's national football team")
+  )
  
 htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-## Top Strikers {.tabset .tabset-pills}
+Poland's peak in 2017 is particularly noteworthy, as it signifies the culmination of efforts to rebuild and strengthen the team. Maintaining a competitive position in recent years suggests that Poland has established a more consistent framework for success, which could bode well for future international competitions.
+
+## **Legends of polish football (1920 - 2024)** {.tabset .tabset-pills}
+
+Poland has produced a rich lineage of football talent, particularly in the realm of goal-scoring strikers who have left an indelible mark on the sport. The accompanying chart provides a visual representation of Poland's top strikers, categorized by the number of goals they scored during their careers, offering a timeline of football excellence from the early 20th century to the present day.
+
+#### **Early Pioneers (1920s-1950s)**
+
+The journey of Polish football's greatest strikers begins with the early pioneers of the 1920s and 1930s. Wawrzyniec Staliński, who scored 11 goals, and Józef Nawrot, with 16 goals, laid the foundational stones. These early stars set the stage for future generations, demonstrating the potential of Polish talent on the international stage.
+
+Moving into the 1950s, we see the emergence of players like Gerard Cieślik, who netted 27 goals. His remarkable performance during this period helped elevate Poland's status in international football, establishing a legacy that would inspire future strikers.
+
+#### **Golden Era (1960s-1980s)**
+
+The 1960s to the 1980s represent a golden era for Polish football, highlighted by prolific goal-scorers who dominated the field. Włodzimierz Lubański, with an impressive 48 goals, stands out as a towering figure of this era. His goal-scoring prowess and leadership on the field were instrumental in Poland's successful campaigns during this period.
+
+Other notable strikers from this era include Grzegorz Lato (45 goals) and Andrzej Szarmach (32 goals), both of whom played pivotal roles in Poland's strong performances in international tournaments, including the World Cup. Their contributions cemented Poland's reputation as a formidable footballing nation.
+
+#### **Transition and Consistency (1990s-2000s)**
+
+The 1990s and 2000s were marked by a blend of seasoned veterans and emerging talents. Players like Roman Kosecki (19 goals) and Andrzej Juskowiak (13 goals) provided consistency and experience, while younger stars such as Euzebiusz Smolarek (19 goals) began to make their mark.
+
+This period also saw the rise of versatile midfielders like Jakub Błaszczykowski (21 goals), who, despite not being traditional strikers, contributed significantly to the team's goal tally. Their performances ensured that Poland remained competitive on the international stage, setting the stage for future talents.
+
+#### **Modern Legends (2010s-Present)**
+
+The modern era of Polish football has been defined by the extraordinary talents of strikers like Robert Lewandowski, who has set a new benchmark with an astounding 82 goals. Lewandowski's goal-scoring feats have not only brought numerous accolades to Poland but have also earned him a place among the world's elite footballers. His consistency, skill, and leadership continue to inspire both teammates and fans.
 
 ```{r}
 dfTeam <- 
@@ -194,7 +480,7 @@ dfTeam <-
 
 ```
 
-### Legends od polish football {.tabset .tabset-pills}
+### Top Strikers
 
 ```{r, echo = T}
 s <- svgstring(width = 12, height = 9)
@@ -253,7 +539,8 @@ dfTeam %>%
       <span style = 'color: #2f4f77;'><b>[20, 39]</b></span>,
       <span style = 'color: #d1000a;'><b>46+</b> </span>
       "
-    )
+    ),
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n men's national football team")
   )
 
 
@@ -261,7 +548,9 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-### Efficiency {.tabset .tabset-pills}
+The historical overview of Poland's greatest strikers, as illustrated in the chart, reflects a rich and evolving legacy of football talent. From early pioneers to modern legends, each era has produced remarkable goal-scorers who have contributed to the national team's successes and reputation. As Poland continues to develop and nurture football talent, the achievements of these strikers will remain a source of inspiration and pride for future generations, ensuring that the legacy of Polish football excellence endures.
+
+### Efficiency
 
 ```{r, echo = T}
 s <- svgstring(width = 12, height = 9)
@@ -279,102 +568,107 @@ mostEfficient <- (
   )$player
 
 dfTeam %>%
-  mutate(isTop = player %in% mostEfficient) %>%
+  mutate(
+    isTop = player %in% mostEfficient,
+    player = paste0(sub(" ", "\n", player), "\n(", goals, "/", matches, ")")
+  ) %>%
   ggplot(aes(
     x = goals,
     y = matches,
-    size = ratio,
+    size = ratio
+  )) + 
+  geom_text(aes(
+    label = player,
     color = isTop
-  )) + 
-  geom_point(alpha = .7)
+  ), alpha = .7, show.legend = F, fontface = 2) +
+  scale_x_log10() + 
+  scale_y_log10() +
+  scale_size(range = c(3, 6)) +
+  scale_color_manual(values = c("#111d2b", "#d1000a")) +
+  theme(
+    plot.subtitle = element_markdown()
+  ) + 
+  labs(
+    x = "Goals Scored",
+    y = "Matches Played",
+    title = "The best stikers in the history of polish football",
+    subtitle = glue::glue(
+      "
+      player efficiency comparison 
+      <b>(goals scored / matches played)</b>
+      "
+    ),
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n men's national football team")
+  )
 
 htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-### Score distribution {.tabset .tabset-pills}
+The historical overview of Poland's greatest strikers, as illustrated in the chart, reflects a rich and evolving legacy of football talent. From early pioneers to modern legends, each era has produced remarkable goal-scorers who have contributed to the national team's successes and reputation. As Poland continues to develop and nurture football talent, the achievements of these strikers will remain a source of inspiration and pride for future generations, ensuring that the legacy of Polish football excellence endures.
 
-```{r, echo = T}
-s <- svgstring(width = 12, height = 6)
+## The Rivals (1920 - 2024) {.tabset .tabset-pills}
 
-dfTeam %>%
-  ggplot(aes(
-    x = goals
-  )) +
-  geom_histogram(binwidth = 5, aes(y = ..density..)) + 
-  geom_density(color = "red", size = 1.6) 
+The chart’s vertical axis represents “Historical opponents rank,” indicating teams’ historical performance rankings. The horizontal axis spans from 0 to 100+ goals, representing the number of goals scored or lost. Each team is depicted by two points connected by a line:
 
-htmltools::HTML(s())
-invisible(dev.off())
-```
+-   **Red Point (Goals Lost):** Indicates the number of goals conceded by the team.
 
-## Rivals 
+-   **Black Point (Goals Scored):** Represents the team’s offensive prowess.
 
-```{r, echo = T}
-dfRival <- dfRival %>%
-  mutate(RG = GZ - GS) 
+**Top Right Quadrant (Strong Offense, Solid Defense)**
 
-dfRival %>%
-  ggplot(aes(
-    x = RG,
-    y = ""
-  )) + 
-  geom_violin()
+Teams positioned far to the right (closer to 100 goals scored) have impressive offensive records. If the black point is higher than the red point, it indicates that the team has conceded fewer goals than they’ve scored. Notable teams in this quadrant might include Barcelona, Bayern Munich, and other dominant clubs.
 
-dfRival %>%
-  ggplot(aes(
-    x = M,
-    y = .5
-  )) +
-  geom_violin() +
-  geom_point(aes(
-    y =  sample(400:600, nrow(dfRival), T) / 1000
-  )) 
+**Bottom Left Quadrant (Weak Offense, Vulnerable Defense)**
 
-dfRival %>%
-  arrange(-M) %>% 
-  head %>%
-  ggplot(aes(
-    x = M,
-    y = Rywal
-  )) +
-  geom_col()
-```
+Teams positioned far to the left (closer to 0 goals scored) struggle offensively. If the red point is higher than the black point, it suggests that the team concedes more goals than they score. These teams need to improve both their attacking and defensive strategies.
+
+**Top Left Quadrant (Strong Offense, Vulnerable Defense)**
+
+Teams with high goals scored but also high goals conceded fall into this quadrant. While they excel in attacking, their defense needs work. Balancing offensive flair with defensive stability is crucial for these teams.
+
+**Bottom Right Quadrant (Weak Offense, Solid Defense)**
+
+Teams here have solid defensive records but struggle to find the back of the net. They need to focus on improving their attacking play. Examples might include teams that prioritize a strong defense, such as Italy or Greece.
+
 ```{r}
+s <- svgstring(width = 12, height = 18)
+
 dfRival %>%
+  group_by(Rywal) %>%
   mutate(
-    q1 = quantile(RG, .25),
-    q3 = quantile(RG, .75),
-    IQR = IQR(RG),
-    lLim = (q1 - (IQR * 1.5)),
-    rLim = (q3 + (IQR * 1.5)),
-    outlier = if_else( lLim >= RG | rLim <= RG, T, F)
+    diff = GZ - GS,
+    position = max(GZ, GS)
   ) %>%
-  ggplot(aes(
-    x = RG,
-    y = reorder(Rywal, RG),
-    fill = outlier
-  )) +
-  geom_col()
-```
-```{r}
-dfRival %>%
-  mutate(diff = GZ - GS) %>%
-  ggplot() +
+  ggplot(aes(y = reorder(Rywal, diff))) +
   geom_segment(aes(
     x = GZ,
     xend = GS,
-    y = reorder(Rywal, diff),
     yend = reorder(Rywal, diff)
   )) +
-  geom_point(aes(
-    x = GZ,
-    y = reorder(Rywal, diff)
-  ), color = "blue") +
-  geom_point(aes(
-    x = GS,
-    y = reorder(Rywal, diff)
-  ), color = "red")
+  geom_point(aes(x = GZ), color = "#d1000a", size = 5) +
+  geom_point(aes(x = GS), color = "#0a0229", size = 4) +
+  geom_text(aes(
+    label = paste0(GZ, "/", GS),
+    x = position + 4
+  ), color = "#111d2b") +
+  theme(
+    plot.subtitle = element_markdown()
+  ) + 
+  labs(
+    x = "",
+    y = "Matches played (won & lost)",
+    title = "Who should we fear? The historical context.",
+    subtitle = glue::glue(
+      "
+      Poland Team opponents by number of goals 
+      <span style = 'color: #d1000a;'><b>scored</b></span> /
+      <span style = 'color: #0a0229;'><b>lost</b></span>.
+      "
+    ),
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n men's national football team")
+  )
+
+htmltools::HTML(s())
+invisible(dev.off())
 ```
-
-
