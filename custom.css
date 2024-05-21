@@ -4,10 +4,12 @@ min-height: 144px;
 position: relative;
 z-index: 3;
 }
+
 .body {
  background-color: #bbbbbb; 
  font-family: "Helvetica", Arial;
 }
+
 .main-container {
   max-width: 100% !important;
   margin: auto;
@@ -33,3 +35,7 @@ svg {
  h1, h2 {
    font-weight: bold;
  }
+ 
+.col-xs-10{
+    max-width:1350px;
+}

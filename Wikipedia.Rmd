@@ -8,9 +8,13 @@ css: custom.css
 
 # [Preface]{style="color: #F93943;"}
 
-Poland, officially known as the Republic of Poland (Rzeczpospolita Polska), is a captivating country nestled in Central Europe. From the Baltic Sea in the north to the Sudetes and Carpathian Mountains in the south, Poland boasts a diverse landscape that encompasses both natural beauty and historical significance.
+## **Briefly about the report**
 
-## **Handful of key facts:**
+The report below presents a summary of selected data/curiosities about Poland and Poles. All data was collected from Wikipedia using web scraping, each time the downloaded data is marked with the source and name of a specific subpage in English (in some cases, Polish equivalents were also used. **Enjoy reading! :)**
+
+### Entry
+
+Poland, officially known as the Republic of Poland (Rzeczpospolita Polska), is a captivating country nestled in Central Europe. From the Baltic Sea in the north to the Sudetes and Carpathian Mountains in the south, Poland boasts a diverse landscape that encompasses both natural beauty and historical significance.
 
 -   **Geography:** Poland’s territory spans from the Baltic coast to the picturesque mountain ranges. The Vistula River, the longest in the country, meanders through its heartland.
 
@@ -26,7 +30,21 @@ Poland, officially known as the Republic of Poland (Rzeczpospolita Polska), is a
 
 -   **Cities:** Warsaw, the capital, stands as a testament to Poland’s resilience after World War II. Other major cities like Kraków, Wrocław, Łódź, Poznań, and Gdańsk contribute to the country’s vibrant urban life.
 
-Whether you’re drawn to its medieval castles, vibrant festivals, or hearty cuisine, Poland offers a rich tapestry of experiences. Join us on a journey through this remarkable country, where tradition meets modernity, and history echoes in every cobblestone street.
+### And what about sport?
+
+Poland has a rich sports culture that is an integral part of national pride and identity. The country excels in a variety of sports, with a particularly strong tradition in football, volleyball, and athletics.
+
+-   **Football:** Football (soccer) is the most popular sport in Poland. The national team, known as the Biało-Czerwoni (White and Reds), has a storied history, with notable successes including third-place finishes in the 1974 and 1982 FIFA World Cups. The Polish Football Association oversees the sport, and the top-tier league, Ekstraklasa, features competitive clubs like Legia Warsaw, Lech Poznań, and Wisła Kraków.
+
+-   **Volleyball:** Volleyball is another highly popular sport in Poland, with the national team achieving significant success on the international stage. The men's team has won multiple World Championship titles, including victories in 2014 and 2018. Poland also hosts one of the most competitive national leagues in the world, PlusLiga, which attracts top talent from around the globe.
+
+-   **Athletics:** Poland has a strong tradition in athletics, particularly in track and field events. Polish athletes have won numerous medals in the Olympics and World Championships. Names like Irena Szewińska, Anita Włodarczyk, and Robert Korzeniowski are celebrated for their contributions and achievements in the sport.
+
+-   **Winter Sports:** Poland’s climate and geography make it a favorable destination for winter sports. Ski jumping is particularly popular, with Polish jumpers such as Adam Małysz and Kamil Stoch gaining international acclaim. The country also excels in cross-country skiing and biathlon.
+
+## **Attention**
+
+The resolution of the charts is adjusted to the standard **16:9** aspect ratio, standard for most monitors and laptops.
 
 ```{r, include=F}
 knitr::opts_chunk$set(
@@ -48,6 +66,9 @@ library(svglite)
 library(ggplot2)
 library(extrafont)
 library(ggtext)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
 #font_import()
 loadfonts(device = "win")
 windowsFonts()
@@ -113,7 +134,7 @@ The pyramid’s shape, narrowing at the base and widening towards the top, under
 
 ### Age Pyramid
 
-```{r}
+```{r, echo = T}
 s <- svgstring(width = 10, height = 15)
 
 ageBins <- c(paste0(seq(0, 99, 5), "-", seq(4, 100, 5)), "100+")
@@ -172,7 +193,7 @@ invisible(dev.off())
 
 ### Proportion Curve
 
-```{r}
+```{r, echo = T}
 s <- svgstring(width = 11, height = 7)
 
 dfAge[nrow(dfAge) - 4:nrow(dfAge),] %>%
@@ -220,7 +241,7 @@ The chart indicates another period of increased births in the early 1970s, exten
 #### **Possible Causes for Decline** 
 The chart itself doesn't pinpoint the reasons behind the decline, but some educated guesses can be made. Urbanization, with its smaller living spaces, might be a contributing factor.  Furthermore, increased educational opportunities for women may be leading to later marriages and childbearing. Economic insecurity, a global concern, could also be discouraging couples from having children. It paints a clear picture: Poland's birthrate has undergone a significant decline in recent decades. While the reasons are likely multifaceted – urbanization, educational advancements, economic uncertainty – the consequences are undeniable. A shrinking workforce and an aging population pose challenges for Poland's social security systems, economic growth, and healthcare infrastructure.
 
-```{r}
+```{r, echo = T}
 s <- svgstring(width = 15, height = 10)
 
 dfPopChange %>%
@@ -632,19 +653,40 @@ Teams with high goals scored but also high goals conceded fall into this quadran
 Teams here have solid defensive records but struggle to find the back of the net. They need to focus on improving their attacking play. Examples might include teams that prioritize a strong defense, such as Italy or Greece.
 
 ```{r}
+# Gemini country translation
+cPL <- c("Anglia", "Czechosłowacja", "Czechy", "Irlandia Północna", "Jugosławia[aj]", "Macedonia Północna[ak]", "Niemcy[al]", "Niemcy Wschodnie", "Południowa Afryka", "Serbia i Czarnogóra", "Szkocja", "Walia", "Związek Radziecki")
+cEN <- c("England", "Czechoslovakia", "Czechia", "Northern Ireland", "Yugoslavia", 
+         "North Macedonia", "Germany", "German Democratic Republic", "South Africa", 
+         "Serbia and Montenegro", "Scotland", "Wales", "Soviet Union")
+
+
+dfRival <- 
+  dfRival %>%
+  left_join(countrycode::codelist %>% select(country.name.en, `cldr.variant.pl`), join_by(Rywal == `cldr.variant.pl`)) %>%
+  left_join(data.frame(cPL, cEN), join_by(Rywal == cPL)) %>%
+  mutate(
+    Rywal = if_else(is.na(cEN), country.name.en, cEN),
+    Rival = Rywal
+  ) 
+```
+
+
+### Scoring Goals
+
+```{r, echo = T}
 s <- svgstring(width = 12, height = 18)
 
 dfRival %>%
-  group_by(Rywal) %>%
+  group_by(Rival) %>%
   mutate(
     diff = GZ - GS,
     position = max(GZ, GS)
   ) %>%
-  ggplot(aes(y = reorder(Rywal, diff))) +
+  ggplot(aes(y = reorder(Rival, diff))) +
   geom_segment(aes(
     x = GZ,
     xend = GS,
-    yend = reorder(Rywal, diff)
+    yend = reorder(Rival, diff)
   )) +
   geom_point(aes(x = GZ), color = "#d1000a", size = 5) +
   geom_point(aes(x = GS), color = "#0a0229", size = 4) +
@@ -656,8 +698,8 @@ dfRival %>%
     plot.subtitle = element_markdown()
   ) + 
   labs(
-    x = "",
-    y = "Matches played (won & lost)",
+    x = "Number of goals",
+    y = "",
     title = "Who should we fear? The historical context.",
     subtitle = glue::glue(
       "
@@ -672,3 +714,92 @@ dfRival %>%
 htmltools::HTML(s())
 invisible(dev.off())
 ```
+
+### Match Results
+
+```{r, echo = T}
+s <- svgstring(width = 12, height = 18)
+
+dfRival %>%
+  group_by(Rival) %>%
+  mutate(position = max(W, R, P)) %>%
+  ggplot(aes(
+    y = reorder(Rival, (W - P))
+  )) +
+  geom_segment(aes(
+    x = W,
+    xend = P,
+    yend = reorder(Rival, (W - P))
+  ), color = "#111d2b") +
+  geom_point(aes(x = W), color = "#d1000a", size = 4) +
+  geom_point(aes(x = R), color = "#2f5077", shape = 4, size = 4) +
+  geom_point(aes(x = P), color = "#0a0229", size = 3.5) + 
+  geom_text(aes(
+    label = paste0(W, "/", P, "/", R),
+    x = position + 1
+  ), color = "#111d2b") +
+  theme(
+    plot.subtitle = element_markdown()
+  ) + 
+  labs(
+    x = "Matches played",
+    y = "",
+    title = "Who should we fear? The historical context.",
+    subtitle = glue::glue(
+      "
+      Poland Team opponents by matches 
+      <span style = 'color: #d1000a;'><b>won</b></span> /
+      <span style = 'color: #0a0229;'><b>lost</b></span> /
+      <span style = 'color: #2f5077;'><b>draw</b></span>.
+      "
+    ),
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n men's national football team")
+  )
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+### Match Results Map
+
+```{r, echo = T}
+s <- svgstring(width = 18, height = 8)
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world_data <- world %>% 
+  left_join(dfRival, by = c("name" = "Rival"))
+
+world_data %>%
+  mutate(Total = W - P) %>%
+ggplot() +
+  geom_sf(aes(fill = Total), color = "#ffffff") +
+  scale_fill_gradient2(
+    low = "#0a0229",
+    mid = "#2f5077",
+    high = "#d1000a",
+    midpoint = 0,
+    na.value = "#dddddd",
+    name = "Matchs balance"
+  ) +
+  theme(
+    plot.subtitle = element_markdown()
+  ) + 
+  labs(
+    title = "Who should we fear? The historical context.",
+    subtitle = glue::glue(
+      "
+      Poland Team opponents by matches mostly
+      <span style = 'color: #d1000a;'><b>won</b></span> /
+      <span style = 'color: #0a0229;'><b>lost</b></span> /
+      <span style = 'color: #2f5077;'><b>draw</b></span>.
+      "
+    ),
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n men's national football team")
+  )
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+
+
