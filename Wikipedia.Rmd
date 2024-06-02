@@ -135,7 +135,7 @@ The pyramid’s shape, narrowing at the base and widening towards the top, under
 ### Age Pyramid
 
 ```{r, echo = T}
-s <- svgstring(width = 10, height = 15)
+s <- svgstring(scaling = 1, width = 12, height = 15)
 
 ageBins <- c(paste0(seq(0, 99, 5), "-", seq(4, 100, 5)), "100+")
 dfAge[2:22, ]$Age <- ageBins
@@ -194,7 +194,7 @@ invisible(dev.off())
 ### Proportion Curve
 
 ```{r, echo = T}
-s <- svgstring(width = 11, height = 7)
+s <- svgstring(scaling = 1, width = 12, height = 7)
 
 dfAge[nrow(dfAge) - 4:nrow(dfAge),] %>%
   mutate(
@@ -242,7 +242,7 @@ The chart indicates another period of increased births in the early 1970s, exten
 The chart itself doesn't pinpoint the reasons behind the decline, but some educated guesses can be made. Urbanization, with its smaller living spaces, might be a contributing factor.  Furthermore, increased educational opportunities for women may be leading to later marriages and childbearing. Economic insecurity, a global concern, could also be discouraging couples from having children. It paints a clear picture: Poland's birthrate has undergone a significant decline in recent decades. While the reasons are likely multifaceted – urbanization, educational advancements, economic uncertainty – the consequences are undeniable. A shrinking workforce and an aging population pose challenges for Poland's social security systems, economic growth, and healthcare infrastructure.
 
 ```{r, echo = T}
-s <- svgstring(width = 15, height = 10)
+s <- svgstring(scaling = 1, width = 12, height = 10)
 
 dfPopChange %>%
   mutate(
@@ -362,7 +362,7 @@ Following their peak in 2017, Poland's ranking saw a slight decline but has rema
 ### Position over years
 
 ```{r, echo = T}
-s <- svgstring(width = 12, height = 6)
+s <- svgstring(scaling = 1, width = 12, height = 6)
 
 dfFifa %>%
   group_by(year) %>%
@@ -435,7 +435,7 @@ Poland's peak in 2017 is particularly noteworthy, as it signifies the culminatio
 ### Clear boxplot
 
 ```{r, echo = T}
-s <- svgstring(width = 12, height = 6)
+s <- svgstring(scaling = 1, width = 12, height = 6)
 
  dfFifa %>%
   ggplot(aes(
@@ -504,7 +504,7 @@ dfTeam <-
 ### Top Strikers
 
 ```{r, echo = T}
-s <- svgstring(width = 12, height = 9)
+s <- svgstring(scaling = 1, width = 12, height = 9)
 
 dfTeam %>%
   arrange(-debut) %>%
@@ -571,10 +571,12 @@ invisible(dev.off())
 
 The historical overview of Poland's greatest strikers, as illustrated in the chart, reflects a rich and evolving legacy of football talent. From early pioneers to modern legends, each era has produced remarkable goal-scorers who have contributed to the national team's successes and reputation. As Poland continues to develop and nurture football talent, the achievements of these strikers will remain a source of inspiration and pride for future generations, ensuring that the legacy of Polish football excellence endures.
 
-### Efficiency
+## Player Efficiency {.tabset .tabset-pills}
+
+### Detailed
 
 ```{r, echo = T}
-s <- svgstring(width = 12, height = 9)
+s <- svgstring(scaling = 1, width = 12, height = 12)
 
 
 dfTeam <- 
@@ -598,10 +600,79 @@ dfTeam %>%
     y = matches,
     size = ratio
   )) + 
+  geom_point(aes(
+    color = isTop,
+    size = ratio / 2
+  ), alpha = .7, show.legend = F, vjust = "inward", hjust = "inward") +
   geom_text(aes(
     label = player,
     color = isTop
-  ), alpha = .7, show.legend = F, fontface = 2) +
+  ), alpha = .7, show.legend = F, fontface = 2, vjust = "inward", hjust = "inward") +
+  scale_x_log10() + 
+  scale_y_log10() +
+  scale_size(range = c(3, 6)) +
+  scale_color_manual(values = c("#111d2b", "#d1000a")) +
+  theme(
+    plot.subtitle = element_markdown()
+  ) + 
+  labs(
+    x = "Goals Scored",
+    y = "Matches Played",
+    title = "The best stikers in the history of polish football",
+    subtitle = glue::glue(
+      "
+      player efficiency comparison 
+      <b>(goals scored / matches played)</b>
+      "
+    ),
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n men's national football team")
+  )
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+### Clear
+
+```{r, echo = T}
+s <- svgstring(scaling = 1, width = 12, height = 12)
+
+
+dfTeam <- 
+  dfTeam %>%
+  mutate(
+    ratio = round(goals / matches, 2)
+  )
+
+mostEfficient <- (
+  dfTeam %>%
+  top_n(., 5, ratio)
+  )$player
+
+dfTeam %>%
+  mutate(
+    isTop = player %in% mostEfficient,
+    player = paste0(sub(" ", "\n", player), "\n(", goals, "/", matches, ")")
+  ) %>%
+  ggplot(aes(
+    x = goals,
+    y = matches,
+    size = ratio
+  )) + 
+  geom_abline(intercept = 0, slope = 1, linetype = "dotted", color = "#d1000a") +
+    annotate(
+    "text",
+    x = 35,
+    y = 25, 
+    label = "Lane indicates \n 1 goal per match \n performance",
+    color = "#d1000a",
+    fontface = 'bold',
+    size = 4.5
+  ) +
+  geom_point(aes(
+    color = isTop,
+    size = ratio / 2
+  ), alpha = .7, show.legend = F, vjust = "inward", hjust = "inward") +
   scale_x_log10() + 
   scale_y_log10() +
   scale_size(range = c(3, 6)) +
@@ -674,7 +745,7 @@ dfRival <-
 ### Scoring Goals
 
 ```{r, echo = T}
-s <- svgstring(width = 12, height = 18)
+s <- svgstring(scaling = 1, width = 12, height = 18)
 
 dfRival %>%
   group_by(Rival) %>%
@@ -718,7 +789,7 @@ invisible(dev.off())
 ### Match Results
 
 ```{r, echo = T}
-s <- svgstring(width = 12, height = 18)
+s <- svgstring(scaling = 1, width = 12, height = 18)
 
 dfRival %>%
   group_by(Rival) %>%
@@ -763,7 +834,7 @@ invisible(dev.off())
 ### Match Results Map
 
 ```{r, echo = T}
-s <- svgstring(width = 18, height = 8)
+s <- svgstring(scaling = 1, width = 12, height = 8)
 
 world <- ne_countries(scale = "medium", returnclass = "sf")
 world_data <- world %>% 
