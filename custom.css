@@ -39,3 +39,7 @@ svg {
 .col-xs-10{
     max-width:1350px;
 }
+
+.pages .page img.image-thumb {
+    max-width: 600px;
+}

@@ -32,19 +32,7 @@ Poland, officially known as the Republic of Poland (Rzeczpospolita Polska), is a
 
 ### And what about sport?
 
-Poland has a rich sports culture that is an integral part of national pride and identity. The country excels in a variety of sports, with a particularly strong tradition in football, volleyball, and athletics.
-
--   **Football:** Football (soccer) is the most popular sport in Poland. The national team, known as the Biało-Czerwoni (White and Reds), has a storied history, with notable successes including third-place finishes in the 1974 and 1982 FIFA World Cups. The Polish Football Association oversees the sport, and the top-tier league, Ekstraklasa, features competitive clubs like Legia Warsaw, Lech Poznań, and Wisła Kraków.
-
--   **Volleyball:** Volleyball is another highly popular sport in Poland, with the national team achieving significant success on the international stage. The men's team has won multiple World Championship titles, including victories in 2014 and 2018. Poland also hosts one of the most competitive national leagues in the world, PlusLiga, which attracts top talent from around the globe.
-
--   **Athletics:** Poland has a strong tradition in athletics, particularly in track and field events. Polish athletes have won numerous medals in the Olympics and World Championships. Names like Irena Szewińska, Anita Włodarczyk, and Robert Korzeniowski are celebrated for their contributions and achievements in the sport.
-
--   **Winter Sports:** Poland’s climate and geography make it a favorable destination for winter sports. Ski jumping is particularly popular, with Polish jumpers such as Adam Małysz and Kamil Stoch gaining international acclaim. The country also excels in cross-country skiing and biathlon.
-
-## **Attention**
-
-The resolution of the charts is adjusted to the standard **16:9** aspect ratio, standard for most monitors and laptops.
+Poland has a rich sports culture that is an integral part of national pride and identity, excelling in a variety of sports, with a particularly strong tradition in football, volleyball, and athletics. Football (soccer) is the most popular sport in Poland, with the national team, known as the Biało-Czerwoni (White and Reds), having a storied history and notable successes, including third-place finishes in the 1974 and 1982 FIFA World Cups. The Polish Football Association oversees the sport, and the top-tier league, Ekstraklasa, features competitive clubs like Legia Warsaw, Lech Poznań, and Wisła Kraków. Volleyball is another highly popular sport, with the men's national team achieving significant success on the international stage, winning multiple World Championship titles, including victories in 2014 and 2018, and Poland hosts one of the most competitive national leagues in the world, PlusLiga, attracting top talent globally. In athletics, particularly in track and field events, Polish athletes have won numerous medals in the Olympics and World Championships, with celebrated names like Irena Szewińska, Anita Włodarczyk, and Robert Korzeniowski contributing to the sport's strong tradition. Additionally, Poland’s climate and geography make it a favorable destination for winter sports, with ski jumping being particularly popular and Polish jumpers such as Adam Małysz and Kamil Stoch gaining international acclaim, alongside excellence in cross-country skiing and biathlon.
 
 ```{r, include=F}
 knitr::opts_chunk$set(
@@ -96,6 +84,145 @@ theme_update(
 
 # [Demography]{style="color: #F93943;"}
 
+## **The Big Picture of World's Population** {.tabset .tabset-pills}
+
+```{r}
+url <- "https://en.wikipedia.org/wiki/World_population"
+dfList <- 
+  read_html(url) %>%
+  html_nodes(., '.wikitable') %>%
+  html_table(., fill = TRUE)
+
+dfPopEstPosition <- which(sapply(dfList, nrow) == 9 & sapply(dfList, ncol) == 4)
+dfPopEst <- dfList[[dfPopEstPosition]]
+
+dfPopPosition <- which(sapply(dfList, nrow) == 7 & sapply(dfList, ncol) == 15)
+dfPop <- dfList[[dfPopPosition]]
+
+```
+
+### The Future & The Past
+
+The most striking trend in the chart is the rapid population growth in Asia. From 1500, the continent's population has grown from around 500 million to a projected 5561 million in 2150. The dynamic growth of the Asian population, especially in recent centuries, is a result of both high natural increase and advances in medicine and improved living conditions. This makes Asia the continent with the greatest market potential, but also poses challenges related to sustainable development and resource management. Similarly, Africa is experiencing significant population growth. From 1500, the population has grown from around 100 million to 2308 million in 2150. Africa, with its rapidly growing population, is becoming an increasingly important player on the global economic scene. The population increase brings with it the need to invest in infrastructure, education and healthcare to meet the needs of the growing community.
+
+Latin America, Europe and North America are also experiencing population growth, albeit to a lesser extent. Europe, whose population grew from around 100 million in 1500 to a projected 517 million in 2150, has shown population stabilization in recent decades. An aging population and low natural increase in Europe pose challenges in maintaining economic balance and ensuring an adequate level of social care. North America, with a population growing from around 2 million in 1500 to 398 million in 2150, is also experiencing demographic stabilization. This region, like Europe, will need to adapt its policies to the changing demographic structure, with an emphasis on integrating immigrants and supporting the aging population
+
+```{r}
+s <- svgstring(scaling = 1, width = 12, height = 8)
+
+dfPop %>%
+  mutate(across(.cols = everything(), .fns = ~as.character(.x))) %>%
+  filter(Region != "World") %>%
+  pivot_longer(
+    values_to = "Pop",
+    names_to = "Year",
+    cols = -1
+  ) %>%
+  mutate(
+    Year = as.numeric(Year),
+    Pop = as.numeric(sub(",", "", Pop)),
+    Region = sub("\\[Note 1\\]", "", Region)
+  ) %>%
+  ggplot(aes(
+    x = as.factor(Year),
+    y = Pop
+  )) +
+  geom_line(aes(
+    group = Region,
+    color = Region
+  ), size = 2.4, show.legend = F) +
+  scale_color_manual(
+    values = c(
+      "Africa" = "#111d2b",
+      "Asia" = "#111d2b",
+      "Latin America" = "#111d2b",
+      "Northern America" = "#111d2b",
+      "Europe" = "#d1000a",
+      "Oceania" = "#111d2b"
+    )
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 6000, by = 1000),
+    minor_breaks = NULL
+  ) +
+  ggrepel::geom_text_repel(aes(
+    label = if_else(Year == "2150", paste0(Region, "\n", Pop, " mln"), ""),
+    color = Region
+  ), show.legend = F, hjust = 1, nudge_x = 1.5, fontface = "bold", direction = "y", size = 4.5) +
+  labs(
+    y = "Population (in milions)", x = "",
+    title = "Breakdown of World Population",
+    subtitle = "divided by continents, estimated values",
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n population")
+  ) +
+  theme(
+    panel.grid.major.x = element_blank()
+  )
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
+### The Big Cultures
+
+Central and South Asia are projected to see the most dramatic population increase, with numbers rising from 2.342 billion in 2022 to a projected 2.575 billion in 2050. This translates to a growth of 233 million people. East and Southeast Asia will also experience significant growth, with their populations increasing by 242 million to reach 2.317 billion. Sub-Saharan Africa is another region anticipating substantial growth, with projections showing a rise from 2.075 billion to 2.094 billion, indicating a strong natural increase. In contrast to the rapidly growing regions, Europe and North America are expected to remain fairly stable in terms of population. These regions might see a slight increase, going from a combined 1.152 billion to 1.125 billion. This demographic stability is likely a result of low birth rates and aging populations, posing challenges for these regions in terms of supporting their aging citizens and maintaining a dynamic workforce. North Africa and West Asia are expected to see their populations rise from 0.658 billion to 0.771 billion. Similarly, Latin America and the Caribbean are projected to grow from 0.549 billion to 0.749 billion. These regions will need to invest in infrastructure and social services to accommodate the growing needs of their populations.
+
+```{r}
+s <- svgstring(scaling = 1, width = 12, height = 8)
+
+dfPopEst %>%
+  mutate(across(
+      .cols = 2:4,
+      .fns = ~as.numeric(sub(",", "", sapply(str_split(.x, " "), `[`, 1)))
+  )) %>% filter(Region != "World") %>%
+  select(1, "2022" = 2, "2050" = 4) %>%
+  pivot_longer(names_to = "type", values_to = "qty", cols = 2:3) %>%
+  mutate(type = factor(type, levels = unique(type))) %>%
+  ggplot(aes(
+    x = type,
+    y = qty,
+    color = Region
+  )) +
+  geom_line(aes(group = Region), show.legend = F, alpha = .8, size = 1.3) +
+  geom_point(aes(y = if_else(type == "2022", qty, NA)), show.legend = F, size = 5) +
+  geom_point(aes(y = if_else(type == "2050", qty, NA)), show.legend = F, size = 3) +
+  ggrepel::geom_text_repel(aes(
+    label = if_else(type == "2050", paste0(Region, "\n", round(qty/1000, 3), " mln"), "")
+  ), show.legend = F, hjust = 0, nudge_x = .01, fontface = "bold", direction = "y") +
+  ggrepel::geom_text_repel(aes(
+    label = if_else(type == "2022", paste0(round(qty/1000, 3), " mln"), "")
+  ), show.legend = F, hjust = 1, nudge_x = -.01, fontface = "bold", direction = "y") +
+  labs(
+    y = "", x = "",
+    title = "Estimated world population change within 27 years",
+    caption = paste0("Author: MK \n data source: wikipedia (", Sys.Date(), ") \n population")
+  ) +
+  scale_color_manual(
+    values = c(
+      "Sub-Saharan Africa" = "#111d2b",
+      "Northern Africa and Western Asia" = "#111d2b",
+      "Central Asia and Southern Asia" = "#111d2b",
+      "Eastern Asia and Southeastern Asia" = "#111d2b",
+      "Europe and Northern America" = "#d1000a",
+      "Latin America and the Caribbean" = "#111d2b",
+      "Australia and New Zealand" = "#111d2b",
+      "Oceania" = "#111d2b"
+    )
+  ) +
+  theme(
+    axis.text.y = element_blank(),
+    axis.line.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank(),
+    plot.margin = unit(c(1, 1, 1, -4), "cm"),
+    plot.title = element_textbox(hjust = .35)
+  )
+
+
+htmltools::HTML(s())
+invisible(dev.off())
+```
+
 ```{r}
 url <- "https://pl.wikipedia.org/wiki/Demografia_Polski"
 dfList <- 
@@ -114,6 +241,8 @@ names(dfAge) <- c("Age", "Men", "Women", "All", "%age")
 
 ## **Poland's Demographic Structure (2015)** {.tabset .tabset-pills}
 
+### Age Pyramid
+
 The population pyramid displayed above offers a comprehensive snapshot of Poland's demographic landscape in 2015, segmented by gender. This graphical representation delineates the population distribution across various age cohorts, highlighting the differences between males and females.
 
 #### **Youth Population**:
@@ -131,8 +260,6 @@ A significant feature of this pyramid is the pronounced female majority in the o
 #### **Aging Population**:
 
 The pyramid’s shape, narrowing at the base and widening towards the top, underscores an aging population. The larger cohorts in the older age groups indicate a substantial elderly population, pointing to potential challenges and needs in healthcare and social services.
-
-### Age Pyramid
 
 ```{r, echo = T}
 s <- svgstring(scaling = 1, width = 12, height = 15)
@@ -193,6 +320,24 @@ invisible(dev.off())
 
 ### Proportion Curve
 
+The population pyramid displayed above offers a comprehensive snapshot of Poland's demographic landscape in 2015, segmented by gender. This graphical representation delineates the population distribution across various age cohorts, highlighting the differences between males and females.
+
+#### **Youth Population**:
+
+The youngest age groups (0-4 and 5-9) exhibit a balanced distribution between males and females, suggesting consistent birth rates during this period.
+
+#### **Working-Age Population**:
+
+Individuals in the 20-24 to 50-54 age brackets form the core of Poland's working-age population. Here, the gender distribution is relatively even, though females slightly outnumber males in most cohorts.
+
+#### **Elderly Population**:
+
+A significant feature of this pyramid is the pronounced female majority in the older age groups, starting from 60-64 years onward. This trend reflects the higher life expectancy among women, a common demographic pattern observed globally.
+
+#### **Aging Population**:
+
+The pyramid’s shape, narrowing at the base and widening towards the top, underscores an aging population. The larger cohorts in the older age groups indicate a substantial elderly population, pointing to potential challenges and needs in healthcare and social services.
+
 ```{r, echo = T}
 s <- svgstring(scaling = 1, width = 12, height = 7)
 
@@ -230,16 +375,100 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
+### Geospatial
+
+The population of Poland is concentrated in a few key urban areas. As the capital, Warsaw stands out as the most densely populated area on the map, a natural consequence of its role as the country's administrative, cultural, and economic center. Similarly, other large cities like Krakow, Lodz, Wroclaw, and Poznan also make their presence known on the map, indicating their significance as regional economic and educational hubs. The map also reveals clear distinctions between urban and rural areas. The northern and eastern regions of Poland, excluding major cities, are characterized by lower population density. These regions are dominated by smaller towns and villages, reflecting the greater role of agriculture and extractive industries in local economies. In contrast, the south and west, particularly the Silesia region, exhibit significant population density, mirroring the historical development of heavy industry and mining. The map also highlights the impact of transportation infrastructure on population distribution. Areas along major transportation corridors, such as highways and railways, often exhibit higher population densities. This is associated with better commuting opportunities and access to services, attracting residents and investments.
+
+[![Based on the Milos Popovic work](images/clipboard-3476508254.png)](https://github.com/milos-agathon)
+
+```{r}
+# Markdown dosen't support :<
+if (F) {
+  options(timeout = 300)
+url <- "https://geodata-eu-central-1-kontur-public.s3.amazonaws.com/kontur_datasets/kontur_population_PL_20231101.gpkg.gz"
+filename <- basename(url)
+
+if (!file.exists(filename)) {
+  download.file(
+      url = url,
+      destfile = filename,
+      mode = "wb"
+  )
+}
+
+if (!file.exists(sub(".gz", "", filename))) {
+  R.utils::gunzip(
+    filename,
+    remove = T
+  )
+}
+
+pop_df <- 
+  sf::st_read(
+    dsn = gsub(
+        pattern = ".gz",
+        replacement = "",
+        x = filename
+    )
+  ) %>%
+  sf::st_transform(
+      crs = "EPSG:4326"
+  )
+
+pal <- scales::col_quantile(
+    "magma", reverse = T,
+    pop_df$population,
+    n = 6
+)
+
+pop_df$color <- pal(
+    pop_df$population
+)
+
+properties <- list(
+    stroked = T,
+    filled = T,
+    extruded = T,
+    wireframe = F,
+    elevationScale = 1,
+    getFillColor = ~color,
+    getLineColor = ~color,
+    getElevation = ~population,
+    getPolygon = deckgl::JS(
+        "d => d.geom.coordinates"
+    ),
+    tooltip = "Population: {{population}}",
+    opacity = .25
+)
+
+deckgl::deckgl(
+    latitude = 51.9194,
+    longitude = 19.1451,
+    zoom = 6, pitch = 45
+  ) %>%
+    deckgl::add_polygon_layer(
+        data = pop_df,
+        properties = properties
+    ) %>%
+    deckgl::add_basemap(
+        deckgl::use_carto_style(theme = "positron")
+    )
+}
+```
+
 ## Births
 
-#### **Post-War Baby Boom (1946-1953)** 
+#### **Post-War Baby Boom (1946-1953)**
+
 The chart showcases a significant rise in births following World War II. This surge, evident in many European nations, reflects a post-war baby boom as families reunited and looked towards rebuilding.
 
 #### **Second Increase and Decline (1970s-Present)**
+
 The chart indicates another period of increased births in the early 1970s, extending into the 1980s. This rise could be attributed to government policies or economic prosperity that provided stability for families. However, a concerning trend emerges – a steady decline in birthrate since the early 1980s. This continuous downward slope suggests Poland's birthrate has fallen below replacement level.
 
-#### **Possible Causes for Decline** 
-The chart itself doesn't pinpoint the reasons behind the decline, but some educated guesses can be made. Urbanization, with its smaller living spaces, might be a contributing factor.  Furthermore, increased educational opportunities for women may be leading to later marriages and childbearing. Economic insecurity, a global concern, could also be discouraging couples from having children. It paints a clear picture: Poland's birthrate has undergone a significant decline in recent decades. While the reasons are likely multifaceted – urbanization, educational advancements, economic uncertainty – the consequences are undeniable. A shrinking workforce and an aging population pose challenges for Poland's social security systems, economic growth, and healthcare infrastructure.
+#### **Possible Causes for Decline**
+
+The chart itself doesn't pinpoint the reasons behind the decline, but some educated guesses can be made. Urbanization, with its smaller living spaces, might be a contributing factor. Furthermore, increased educational opportunities for women may be leading to later marriages and childbearing. Economic insecurity, a global concern, could also be discouraging couples from having children. It paints a clear picture: Poland's birthrate has undergone a significant decline in recent decades. While the reasons are likely multifaceted – urbanization, educational advancements, economic uncertainty – the consequences are undeniable. A shrinking workforce and an aging population pose challenges for Poland's social security systems, economic growth, and healthcare infrastructure.
 
 ```{r, echo = T}
 s <- svgstring(scaling = 1, width = 12, height = 10)
@@ -303,7 +532,6 @@ dfPopChange %>%
 htmltools::HTML(s())
 invisible(dev.off())
 ```
-
 
 # [Men's Football]{style="color: #F93943;"}
 
@@ -571,8 +799,6 @@ invisible(dev.off())
 
 The historical overview of Poland's greatest strikers, as illustrated in the chart, reflects a rich and evolving legacy of football talent. From early pioneers to modern legends, each era has produced remarkable goal-scorers who have contributed to the national team's successes and reputation. As Poland continues to develop and nurture football talent, the achievements of these strikers will remain a source of inspiration and pride for future generations, ensuring that the legacy of Polish football excellence endures.
 
-## Player Efficiency {.tabset .tabset-pills}
-
 ### Detailed
 
 ```{r, echo = T}
@@ -631,6 +857,8 @@ dfTeam %>%
 htmltools::HTML(s())
 invisible(dev.off())
 ```
+
+The historical overview of Poland's greatest strikers, as illustrated in the chart, reflects a rich and evolving legacy of football talent. From early pioneers to modern legends, each era has produced remarkable goal-scorers who have contributed to the national team's successes and reputation. As Poland continues to develop and nurture football talent, the achievements of these strikers will remain a source of inspiration and pride for future generations, ensuring that the legacy of Polish football excellence endures.
 
 ### Clear
 
@@ -740,7 +968,6 @@ dfRival <-
     Rival = Rywal
   ) 
 ```
-
 
 ### Scoring Goals
 
@@ -871,6 +1098,3 @@ ggplot() +
 htmltools::HTML(s())
 invisible(dev.off())
 ```
-
-
-
