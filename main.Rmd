@@ -44,8 +44,7 @@ data <-
 
 ```{r}
 pop <- 
-  eurostat::get_eurostat("demo_r_d2jan"
-  )
+  eurostat::get_eurostat("demo_r_d2jan")
 pop %>%
   filter(
     sex == "T",
@@ -349,7 +348,7 @@ htmltools::HTML(s())
 invisible(dev.off())
 ```
 
-After converting energy consumption into kcal, assuming the caloric value of chocolate at the level of 546kcal/100g, it turns out that the average Pole consumes the equivalent of electricity, which would allow for 7 tons of chocolate - that is, feeding 52 people for a whole year! Moving on to more realistic calculations, the same amount of energy would be sufficient for [Tesla Model X](https://ev-lectron.com/blogs/blog/how-much-electricity-does-it-take-to-charge-a-tesla#:~:text=The%20capacity%20of%20Tesla%20electric,Model%20S%20and%20X%20variants) circle the Earth along the equator approximately **6,372 times**! Or to go on **the moon 664 times** :)
+After converting energy consumption into kcal, assuming the caloric value of chocolate at the level of 546kcal/100g, it turns out that the average Pole consumes the equivalent of electricity, which would allow for 7 tons of chocolate - that is, feeding 52 people for a whole year! Moving on to more realistic calculations, the same amount of energy would be sufficient for [Tesla Model X](https://ev-lectron.com/blogs/blog/how-much-electricity-does-it-take-to-charge-a-tesla) circle the Earth along the equator approximately **6,372 times**! Or to go on **the moon 664 times** :)
 
 Now that we know how much energy we use, it's time to think about what we actually use?
 
@@ -395,7 +394,7 @@ data %>% filter(
       group = prod_nrg
     )
   ) +
-  geom_line() +
+  geom_line(size = 1.3) +
   geom_text(aes(
     label = paste0(format(round(values), big.mark = "'", scientific = F), "Tj"),
     x = if_else(TIME_PERIOD == 2021, TIME_PERIOD, NA),

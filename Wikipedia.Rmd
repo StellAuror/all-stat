@@ -61,6 +61,7 @@ library(rnaturalearthdata)
 loadfonts(device = "win")
 windowsFonts()
 
+
 ```
 
 ```{r}
@@ -242,7 +243,7 @@ names(dfAge) <- c("Age", "Men", "Women", "All", "%age")
 ## **Poland's Demographic Structure (2015)** {.tabset .tabset-pills}
 
 ### Age Pyramid
-
+  
 The population pyramid displayed above offers a comprehensive snapshot of Poland's demographic landscape in 2015, segmented by gender. This graphical representation delineates the population distribution across various age cohorts, highlighting the differences between males and females.
 
 #### **Youth Population**:
@@ -383,7 +384,7 @@ The population of Poland is concentrated in a few key urban areas. As the capita
 
 ```{r}
 # Markdown dosen't support :<
-if (F) {
+if (T) {
   options(timeout = 300)
 url <- "https://geodata-eu-central-1-kontur-public.s3.amazonaws.com/kontur_datasets/kontur_population_PL_20231101.gpkg.gz"
 filename <- basename(url)
@@ -471,7 +472,7 @@ The chart indicates another period of increased births in the early 1970s, exten
 The chart itself doesn't pinpoint the reasons behind the decline, but some educated guesses can be made. Urbanization, with its smaller living spaces, might be a contributing factor. Furthermore, increased educational opportunities for women may be leading to later marriages and childbearing. Economic insecurity, a global concern, could also be discouraging couples from having children. It paints a clear picture: Poland's birthrate has undergone a significant decline in recent decades. While the reasons are likely multifaceted – urbanization, educational advancements, economic uncertainty – the consequences are undeniable. A shrinking workforce and an aging population pose challenges for Poland's social security systems, economic growth, and healthcare infrastructure.
 
 ```{r, echo = T}
-s <- svgstring(scaling = 1, width = 12, height = 10)
+s <- svgstring(scaling = 1, width = 16, height = 10)
 
 dfPopChange %>%
   mutate(
@@ -506,15 +507,16 @@ dfPopChange %>%
       Przyrostnaturalny < -10^4*5 ~ "white",
       T ~ "black"
     )
-  ), angle = 90, show.legend = F, fontface = "bold") +
+  ), angle = 90, show.legend = F, fontface = "bold", size = 4.3) +
   scale_color_manual(values = c("#111d2b", "white")) +
   scale_y_continuous(
     breaks = seq(-200000, 600000, 100000),
     labels = format(abs(seq(-200000, 600000, 100000)), big.mark = " ", scientific = F)
    ) +
   scale_x_continuous(
-    breaks = seq(1945.5, 2023.5, 2),
-    labels = seq(1945, 2023, 2)
+    breaks = seq(1946, 2023, 2),
+    labels = seq(1946, 2023, 2),
+    expand = c(0, 0)
    ) +
   labs(
     x = "",
@@ -525,7 +527,8 @@ dfPopChange %>%
   ) +
   theme(
     panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank()
+    panel.grid.minor.x = element_blank(),
+    plot.margin = unit(c(1, .2, 1, .2), "cm")
   )
 
 
