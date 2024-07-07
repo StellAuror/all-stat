@@ -1,4 +1,43 @@
 ```{r}
-
+pacman::p_load(
+  "tidyverse",
+  "jsonlite",
+  "httr"
+)
 ```
 
+
+```{r}
+# Define the URL of the JSON file
+url <- "https://raw.githubusercontent.com/PetroIvaniuk/2022-Ukraine-Russia-War-Dataset/main/data/russia_losses_equipment.json"
+
+
+# Fetch and read the JSON data
+dfRusLoss <- 
+  httr::GET(url) |>
+  (\(x) jsonlite::fromJSON(httr::content(x, "text")))()
+
+dplyr::glimpse(dfRusLoss)
+```
+
+```{r}
+dfRusLoss |>
+  select(date, APC, tank, aircraft, helicopter) |>
+  pivot_longer(cols = 2:5, names_to = "type", values_to = "n") |>
+  mutate(
+    date = as.Date(date, format = "%Y-%m-%d"),
+    w = week(date),
+    m = month(date),
+    y = year(date),
+    d = day(date)
+  ) |> 
+  ggplot() +
+  geom_line(aes(
+    x = w,
+    y = n,
+    group = type,
+    color = type
+  )) +
+  facet_wrap(~y)
+
+```
